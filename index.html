@@ -1,56 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro de Datos de Reparación</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formulario de Reparación</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: #f8fbfe;
-      padding: 20px;
-      max-width: 480px;
-      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    h2 {
-      color: #1a4fb3;
-      text-align: center;
-    }
-    input, textarea, button {
+
+    .container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
+      max-width: 500px;
     }
+
+    h2 {
+      text-align: center;
+      color: #1c3faa;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
     button {
-      background-color: #1a4fb3;
-      color: white;
-      font-weight: bold;
+      width: 100%;
+      padding: 12px;
+      background-color: #1c3faa;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
     }
-    .success {
+
+    #mensaje {
+      margin-top: 15px;
       text-align: center;
-      color: green;
-      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-
-  <h2>Formulario de Reparación</h2>
-
-  <input type="text" id="idcar" placeholder="ID CAR">
-  <input type="date" id="datein" placeholder="Date In">
-  <input type="date" id="dateout" placeholder="Date Out">
-  <input type="text" id="spare" placeholder="Spare Part">
-  <textarea id="remark" rows="3" placeholder="Remark..."></textarea>
-
-  <button onclick="guardarDatos()">Guardar</button>
-
-  <div class="success" id="mensaje"></div>
+  <div class="container">
+    <h2>Formulario de Reparación</h2>
+    <input type="text" id="idcar" placeholder="ID de unidad">
+    <input type="date" id="datein">
+    <input type="date" id="dateout">
+    <input type="text" id="spare" placeholder="Refacción utilizada">
+    <textarea id="remark" placeholder="Comentarios / Causa raíz"></textarea>
+    <button onclick="guardarDatos()">Guardar</button>
+    <div id="mensaje"></div>
+  </div>
 
   <script>
     async function guardarDatos() {
@@ -62,25 +77,28 @@
         remark: document.getElementById('remark').value
       };
 
-      const response = await fetch('https://script.google.com/macros/s/AKfycbzWihNiN_IQyXzlnNh0qqSKb38N5Pz7lTCGHlrUS55R4m5PL3gY2okhg01Z3XGEbB52/exec', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbz03rwQee6IWoTxC0OZEON09Jw8tLezHF_UGHhxWmf-H5g-gw4X0AjH40fh4ajpFG7h/exec', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' }
+        });
 
-      const mensaje = await response.text();
-      if (mensaje === "OK") {
-        document.getElementById('mensaje').innerText = "✅ Datos guardados correctamente";
-        document.getElementById('idcar').value = "";
-        document.getElementById('datein').value = "";
-        document.getElementById('dateout').value = "";
-        document.getElementById('spare').value = "";
-        document.getElementById('remark').value = "";
-      } else {
-        document.getElementById('mensaje').innerText = "⚠️ Error al guardar.";
+        const mensaje = await response.text();
+        if (mensaje.trim() === "OK") {
+          document.getElementById('mensaje').innerText = "✅ Datos guardados correctamente";
+          document.getElementById('idcar').value = "";
+          document.getElementById('datein').value = "";
+          document.getElementById('dateout').value = "";
+          document.getElementById('spare').value = "";
+          document.getElementById('remark').value = "";
+        } else {
+          document.getElementById('mensaje').innerText = "⚠️ Error al guardar.";
+        }
+      } catch (error) {
+        document.getElementById('mensaje').innerText = "❌ Error de red o del servidor.";
       }
     }
   </script>
-
 </body>
 </html>
