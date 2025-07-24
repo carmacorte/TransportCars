@@ -1,41 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Captura de Transporte</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Transporte</title>
+  <style>
+    body {
+      background-color: #f9fbfe;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #1c1c1e;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-sizing: border-box;
+      margin-top: 5px;
+      background-color: #fff;
+    }
+
+    button {
+      margin-top: 25px;
+      background-color: #007aff;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fcc;
+    }
+
+    .form-container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body>
-  <h3>Registro de Transporte</h3>
-  <form id="form">
-    ID Car: <input name="idcar"><br>
-    Date In: <input name="datein" type="date"><br>
-    Date Out: <input name="dateout" type="date"><br>
-    Spare Part: <input name="spare"><br>
-    Remark: <input name="remark"><br>
-    <button type="submit">Descargar Excel</button>
-  </form>
+  <div class="form-container">
+    <h2>Registro de Transporte</h2>
+    
+    <label for="idCar">ID Car:</label>
+    <input type="text" id="idCar" name="idCar" placeholder="Ej. A123" />
+
+    <label for="dateIn">Date In:</label>
+    <input type="date" id="dateIn" name="dateIn" />
+
+    <label for="dateOut">Date Out:</label>
+    <input type="date" id="dateOut" name="dateOut" />
+
+    <label for="sparePart">Spare Part:</label>
+    <select id="sparePart" name="sparePart">
+      <option value="" disabled selected>Selecciona una opción</option>
+      <option value="Fan">Fan</option>
+      <option value="Power Supply">Power Supply</option>
+      <option value="Main Board">Main Board</option>
+      <option value="LED Module">LED Module</option>
+      <option value="Sensor">Sensor</option>
+    </select>
+
+    <label for="remark">Remark:</label>
+    <input type="text" id="remark" name="remark" placeholder="Comentario..." />
+
+    <button onclick="descargarExcel()">Descargar Excel</button>
+  </div>
 
   <script>
-    document.getElementById('form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = [{
-        "ID CAR": form.idcar.value,
-        "Date In": form.datein.value,
-        "Date Out": form.dateout.value,
-        "Spare Part": form.spare.value,
-        "Remark": form.remark.value
-      }];
-
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Registro");
-
-      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      saveAs(new Blob([wbout], {type: "application/octet-stream"}), "Transporte.xlsx");
-    });
+    function descargarExcel() {
+      alert("Aquí iría la lógica de descarga de Excel o el envío a Google Sheets.");
+    }
   </script>
 </body>
 </html>
