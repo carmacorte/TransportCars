@@ -47,10 +47,10 @@
   <input type="text" id="idCar" placeholder="Escribe ID Car" autocomplete="off"/>
 
   <label for="dateIn">Date In:</label>
-  <input type="text" id="dateIn" readonly/>
+  <input type="date" id="dateIn"/>
 
   <label for="dateOut">Date Out:</label>
-  <input type="text" id="dateOut" readonly/>
+  <input type="date" id="dateOut"/>
 
   <label for="sparePart">Spare Part:</label>
   <select id="sparePart">
@@ -71,7 +71,14 @@
 
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script>
-    function descargarExcel() {
+    function setTodayDates() {
+      const today = new Date();
+      const yyyyMMdd = today.toISOString().split('T')[0];
+      document.getElementById("dateIn").value = yyyyMMdd;
+      document.getElementById("dateOut").value = yyyyMMdd;
+    }
+
+    window.descargarExcel = function () {
       const idCar = document.getElementById("idCar").value.trim();
       const dateIn = document.getElementById("dateIn").value;
       const dateOut = document.getElementById("dateOut").value;
@@ -91,21 +98,14 @@
       const ws = XLSX.utils.aoa_to_sheet(data);
       XLSX.utils.book_append_sheet(wb, ws, "Registro");
 
-      const fileName = `registro_${new Date().toISOString().slice(0,10)}.xlsx`;
+      const fileName = `registro_${new Date().toISOString().slice(0, 10)}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       // Reset form
       document.getElementById("idCar").value = "";
       document.getElementById("sparePart").value = "";
       document.getElementById("remark").value = "";
-    }
-
-    function setTodayDates() {
-      const today = new Date();
-      const options = { year: 'numeric', month: 'short', day: '2-digit' };
-      const formatted = today.toLocaleDateString('es-MX', options).replace(/\./g, '');
-      document.getElementById("dateIn").value = formatted;
-      document.getElementById("dateOut").value = formatted;
+      setTodayDates();
     }
 
     setTodayDates();
