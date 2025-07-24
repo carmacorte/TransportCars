@@ -5,10 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro de Transporte</title>
 
-  <!-- Escáner QR -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <!-- SheetJS para generar Excel -->
+  <!-- SheetJS para Excel -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+  <!-- ZXing para escáner de código de barras -->
+  <script type="module">
+    import { BrowserBarcodeReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
+    window.BarcodeReader = new BrowserBarcodeReader();
+  </script>
 
   <style>
     body {
@@ -59,11 +63,11 @@
       background-color: #005fcc;
     }
 
-    #reader {
+    video {
       margin-top: 10px;
-      border: 1px solid #ccc;
       border-radius: 10px;
-      padding: 5px;
+      width: 100%;
+      display: none;
     }
 
     .form-container {
@@ -75,12 +79,12 @@
 <body>
   <div class="form-container">
     <h2>Registro de Transporte</h2>
-    
-    <label for="idCar">ID Car:</label>
-    <input type="text" id="idCar" name="idCar" placeholder="Ej. A123" />
 
-    <button onclick="startScanner()">Escanear ID Car</button>
-    <div id="reader" style="width: 100%; display: none;"></div>
+    <label for="idCar">ID Car:</label>
+    <input type="text" id="idCar" name="idCar" placeholder="Escanea o escribe ID Car" />
+
+    <button onclick="startBarcodeScanner()">Escanear Código de Barras</button>
+    <video id="barcode-video"></video>
 
     <label for="dateIn">Date In:</label>
     <input type="date" id="dateIn" name="dateIn" />
@@ -104,8 +108,26 @@
     <button onclick="descargarExcel()">Descargar Excel</button>
   </div>
 
-  <script>
-    function descargarExcel() {
+  <script type="module">
+    import { BrowserBarcodeReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
+
+    const codeReader = new BrowserBarcodeReader();
+    const video = document.getElementById("barcode-video");
+
+    window.startBarcodeScanner = async function () {
+      video.style.display = "block";
+      try {
+        const result = await codeReader.decodeOnceFromVideoDevice(undefined, 'barcode-video');
+        document.getElementById("idCar").value = result.text;
+        codeReader.reset();
+        video.style.display = "none";
+      } catch (err) {
+        alert("No se pudo escanear el código.");
+        video.style.display = "none";
+      }
+    };
+
+    window.descargarExcel = function () {
       const idCar = document.getElementById("idCar").value;
       const dateIn = document.getElementById("dateIn").value;
       const dateOut = document.getElementById("dateOut").value;
@@ -119,40 +141,15 @@
       ];
 
       const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+      // Limpia filtros o formatos ocultos: solo datos simples
+      ws["!autofilter"] = undefined;
+
       XLSX.utils.book_append_sheet(wb, ws, "Registro");
 
       const fecha = new Date().toISOString().slice(0,10);
       XLSX.writeFile(wb, `registro_transporte_${fecha}.xlsx`);
-    }
-
-    function startScanner() {
-      const reader = document.getElementById("reader");
-      reader.style.display = "block";
-
-      const html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: 250
-        },
-        (decodedText) => {
-          document.getElementById("idCar").value = decodedText;
-          html5QrCode.stop().then(() => {
-            reader.innerHTML = "";
-            reader.style.display = "none";
-          }).catch((err) => {
-            console.error("Error al detener escáner", err);
-          });
-        },
-        (errorMessage) => {
-          // Ignorar errores de escaneo
-        }
-      ).catch((err) => {
-        console.error("Error al iniciar escáner", err);
-        alert("No se pudo iniciar la cámara");
-      });
-    }
+    };
   </script>
 </body>
 </html>
