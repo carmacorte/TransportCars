@@ -1,129 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Transporte</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f8fbfe;
-      padding: 20px;
-      color: #333;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: auto;
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.05);
-    }
-
-    h2 {
-      text-align: center;
-      color: #0a6ed1;
-      margin-bottom: 20px;
-    }
-
-    label {
-      font-weight: 500;
-      display: block;
-      margin: 10px 0 5px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      background-color: #0a6ed1;
-      color: white;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #084c91;
-    }
-
-    .success {
-      margin-top: 15px;
-      padding: 10px;
-      background: #d4edda;
-      color: #155724;
-      border-radius: 6px;
-      display: none;
-      text-align: center;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Prueba de conexión</title>
 </head>
 <body>
-  <div class="container">
-    <h2>Registro de Transporte</h2>
-    <form id="transportForm">
-      <label for="idcar">ID CAR</label>
-      <input type="text" id="idcar" name="idcar" required>
-
-      <label for="datein">Date In</label>
-      <input type="date" id="datein" name="datein" required>
-
-      <label for="dateout">Date Out</label>
-      <input type="date" id="dateout" name="dateout">
-
-      <label for="spare">Spare Part</label>
-      <input type="text" id="spare" name="spare">
-
-      <label for="remark">Remark</label>
-      <textarea id="remark" name="remark" rows="3"></textarea>
-
-      <button type="submit">Guardar Registro</button>
-
-      <div class="success" id="successMessage">✅ Registro enviado correctamente</div>
-    </form>
-  </div>
+  <h3>Prueba de envío a Google Sheets</h3>
+  <button onclick="sendTest()">Enviar datos de prueba</button>
 
   <script>
-    const form = document.getElementById('transportForm');
-    const successMsg = document.getElementById('successMessage');
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-
-      const data = {
-        idcar: form.idcar.value,
-        datein: form.datein.value,
-        dateout: form.dateout.value,
-        spare: form.spare.value,
-        remark: form.remark.value
-      };
-
-          fetch('https://script.google.com/macros/s/AKfycbyvX0wfZUtWgZzxrOzWexNJ6Xb2qWEltzhCF6dEo7_XAKf0vIzTtPS0nWY7lobAo1Ih/exec', {
-        method: 'POST',
-        body: JSON.stringify(data),
+    function sendTest() {
+      fetch("https://script.google.com/macros/s/AKfycbyvX0wfZUtWgZzxrOzWexNJ6Xb2qWEltzhCF6dEo7_XAKf0vIzTtPS0nWY7lobAo1Ih/exec", {
+        method: "POST",
+        body: JSON.stringify({
+          idcar: "TEST001",
+          datein: "2025-07-23",
+          dateout: "2025-07-25",
+          spare: "Batería",
+          remark: "Prueba desde HTML"
+        }),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         }
       })
-      .then(res => res.text())
-      .then(msg => {
-        successMsg.style.display = 'block';
-        form.reset();
-        setTimeout(() => successMsg.style.display = 'none', 3000);
-      })
-      .catch(err => alert('Error al enviar los datos: ' + err));
-    });
+      .then(response => response.text())
+      .then(result => alert("Respuesta del servidor: " + result))
+      .catch(error => alert("Error: " + error));
+    }
   </script>
 </body>
 </html>
