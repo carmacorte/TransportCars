@@ -2,31 +2,40 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba de conexión</title>
+  <title>Captura de Transporte</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body>
-  <h3>Prueba de envío a Google Sheets</h3>
-  <button onclick="sendTest()">Enviar datos de prueba</button>
+  <h3>Registro de Transporte</h3>
+  <form id="form">
+    ID Car: <input name="idcar"><br>
+    Date In: <input name="datein" type="date"><br>
+    Date Out: <input name="dateout" type="date"><br>
+    Spare Part: <input name="spare"><br>
+    Remark: <input name="remark"><br>
+    <button type="submit">Descargar Excel</button>
+  </form>
 
   <script>
-    function sendTest() {
-      fetch("https://script.google.com/macros/s/AKfycbyvX0wfZUtWgZzxrOzWexNJ6Xb2qWEltzhCF6dEo7_XAKf0vIzTtPS0nWY7lobAo1Ih/exec", {
-        method: "POST",
-        body: JSON.stringify({
-          idcar: "TEST001",
-          datein: "2025-07-23",
-          dateout: "2025-07-25",
-          spare: "Batería",
-          remark: "Prueba desde HTML"
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(response => response.text())
-      .then(result => alert("Respuesta del servidor: " + result))
-      .catch(error => alert("Error: " + error));
-    }
+    document.getElementById('form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = [{
+        "ID CAR": form.idcar.value,
+        "Date In": form.datein.value,
+        "Date Out": form.dateout.value,
+        "Spare Part": form.spare.value,
+        "Remark": form.remark.value
+      }];
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Registro");
+
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveAs(new Blob([wbout], {type: "application/octet-stream"}), "Transporte.xlsx");
+    });
   </script>
 </body>
 </html>
