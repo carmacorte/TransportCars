@@ -8,80 +8,74 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: #f8fbfe;
-      margin: 0;
       padding: 20px;
     }
-    h2 {
-      font-size: 1.6em;
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
     }
     label {
-      font-weight: 600;
-      margin-top: 10px;
       display: block;
+      margin-top: 15px;
+      font-weight: 600;
     }
-    input, select, textarea {
+    input, select, textarea, button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      margin-bottom: 15px;
-      font-size: 1em;
-      border: 1px solid #ccc;
       border-radius: 8px;
-      box-sizing: border-box;
+      border: 1px solid #ccc;
+      font-size: 1em;
     }
     button {
-      width: 100%;
-      background-color: #007bff;
+      background-color: #007aff;
       color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
       font-weight: bold;
+      margin-top: 25px;
+      border: none;
       cursor: pointer;
     }
-    #scanner-container {
-      display: none;
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      margin: 20px auto;
-      border: 2px solid #007bff;
-      border-radius: 8px;
-      overflow: hidden;
+    button:hover {
+      background-color: #005bb5;
     }
-    #interactive canvas, #interactive video {
+    #scanner-container {
       width: 100%;
+      margin: 10px 0;
+    }
+    video {
+      width: 100%;
+      border-radius: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h2>Registro de Transporte</h2>
+  <h1>Registro de Transporte</h1>
 
   <label for="idCar">ID Car:</label>
-  <input type="text" id="idCar" placeholder="Escanea o escribe ID Car" autocomplete="off" />
+  <input type="text" id="idCar" placeholder="Escanea o escribe ID Car" autocomplete="off"/>
 
   <button onclick="startScanner()">Escanear Código de Barras</button>
-
   <div id="scanner-container">
-    <div id="interactive" class="viewport"></div>
-    <button onclick="stopScanner()">Detener Escáner</button>
+    <video id="video" playsinline></video>
   </div>
 
   <label for="dateIn">Date In:</label>
-  <input type="date" id="dateIn" />
+  <input type="text" id="dateIn" readonly/>
 
   <label for="dateOut">Date Out:</label>
-  <input type="date" id="dateOut" />
+  <input type="text" id="dateOut" readonly/>
 
   <label for="sparePart">Spare Part:</label>
   <select id="sparePart">
     <option value="">Selecciona una opción</option>
-    <option>Power Supply</option>
-    <option>Fan</option>
     <option>Main Board</option>
-    <option>Backplane</option>
-    <option>Cable</option>
+    <option>Power Supply</option>
+    <option>Fan Module</option>
+    <option>Connector</option>
+    <option>Heatsink</option>
+    <option>Shield Cover</option>
+    <option>Other</option>
   </select>
 
   <label for="remark">Remark:</label>
@@ -89,68 +83,77 @@
 
   <button onclick="descargarExcel()">Descargar Excel</button>
 
+  <!-- JS Libraries -->
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
-  <script>
-    // Inicializar fechas
-    const hoy = new Date().toISOString().split("T")[0];
-    document.getElementById("dateIn").value = hoy;
-    document.getElementById("dateOut").value = hoy;
+  <script type="module">
+    import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/+esm';
 
-    function descargarExcel() {
-      const idCar = document.getElementById("idCar").value.trim();
+    const videoElement = document.getElementById('video');
+    const codeReader = new BrowserMultiFormatReader();
+    const idCarInput = document.getElementById('idCar');
+
+    function stopScanner() {
+      codeReader.reset();
+      videoElement.style.display = 'none';
+    }
+
+    window.startScanner = async function () {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputDevices = devices.filter(d => d.kind === 'videoinput');
+        if (videoInputDevices.length === 0) {
+          alert("No se encontró cámara.");
+          return;
+        }
+
+        videoElement.style.display = 'block';
+        const result = await codeReader.decodeOnceFromVideoDevice(videoInputDevices[0].deviceId, 'video');
+        idCarInput.value = result.text;
+        stopScanner();
+      } catch (error) {
+        console.error("Error escaneando:", error);
+        stopScanner();
+      }
+    }
+
+    window.descargarExcel = function () {
+      const idCar = idCarInput.value.trim();
       const dateIn = document.getElementById("dateIn").value;
       const dateOut = document.getElementById("dateOut").value;
       const sparePart = document.getElementById("sparePart").value;
       const remark = document.getElementById("remark").value.trim();
 
+      if (!idCar) {
+        alert("Por favor, escanea o escribe el ID Car.");
+        return;
+      }
+
       const wb = XLSX.utils.book_new();
-      const ws_data = [
+      const data = [
         ["ID Car", "Date In", "Date Out", "Spare Part", "Remark"],
         [idCar, dateIn, dateOut, sparePart, remark]
       ];
-      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      const ws = XLSX.utils.aoa_to_sheet(data);
       XLSX.utils.book_append_sheet(wb, ws, "Registro");
-      XLSX.writeFile(wb, "registro_transporte.xlsx");
+
+      const fileName = `registro_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(wb, fileName);
 
       // Reset form
-      document.getElementById("idCar").value = "";
+      idCarInput.value = "";
       document.getElementById("sparePart").value = "";
       document.getElementById("remark").value = "";
     }
 
-    function startScanner() {
-      document.getElementById("scanner-container").style.display = "block";
-      Quagga.init({
-        inputStream: {
-          type: "LiveStream",
-          target: document.querySelector("#interactive"),
-          constraints: {
-            facingMode: "environment"
-          }
-        },
-        decoder: {
-          readers: ["code_128_reader", "ean_reader", "upc_reader"]
-        }
-      }, function (err) {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        Quagga.start();
-      });
-
-      Quagga.onDetected(function(result) {
-        const code = result.codeResult.code;
-        document.getElementById("idCar").value = code;
-        stopScanner();
-      });
+    function setTodayDates() {
+      const today = new Date();
+      const options = { year: 'numeric', month: 'short', day: '2-digit' };
+      const formatted = today.toLocaleDateString('es-MX', options).replace(/\./g, '');
+      document.getElementById("dateIn").value = formatted;
+      document.getElementById("dateOut").value = formatted;
     }
 
-    function stopScanner() {
-      Quagga.stop();
-      document.getElementById("scanner-container").style.display = "none";
-    }
+    setTodayDates();
   </script>
 </body>
 </html>
