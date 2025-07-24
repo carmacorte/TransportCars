@@ -33,7 +33,7 @@
       margin: 10px 0 5px;
     }
 
-    input, select, textarea {
+    input, textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
@@ -73,31 +73,19 @@
   <div class="container">
     <h2>Registro de Transporte</h2>
     <form id="transportForm">
-      <label for="driver">Nombre del chofer</label>
-      <input type="text" id="driver" name="driver" required>
+      <label for="idcar">ID CAR</label>
+      <input type="text" id="idcar" name="idcar" required>
 
-      <label for="plates">Placas</label>
-      <input type="text" id="plates" name="plates" required>
+      <label for="datein">Date In</label>
+      <input type="date" id="datein" name="datein" required>
 
-      <label for="unit">Unidad</label>
-      <input type="text" id="unit" name="unit" required>
-
-      <label for="origin">Origen</label>
-      <input type="text" id="origin" name="origin" required>
-
-      <label for="destination">Destino</label>
-      <input type="text" id="destination" name="destination" required>
-
-      <label for="datein">Fecha Entrada</label>
-      <input type="date" id="datein" name="datein">
-
-      <label for="dateout">Fecha Salida</label>
+      <label for="dateout">Date Out</label>
       <input type="date" id="dateout" name="dateout">
 
-      <label for="spare">Unidad Suplente</label>
+      <label for="spare">Spare Part</label>
       <input type="text" id="spare" name="spare">
 
-      <label for="remark">Observaciones</label>
+      <label for="remark">Remark</label>
       <textarea id="remark" name="remark" rows="3"></textarea>
 
       <button type="submit">Guardar Registro</button>
@@ -114,18 +102,14 @@
       e.preventDefault();
 
       const data = {
-        driver: form.driver.value,
-        plates: form.plates.value,
-        unit: form.unit.value,
-        origin: form.origin.value,
-        destination: form.destination.value,
+        idcar: form.idcar.value,
         datein: form.datein.value,
         dateout: form.dateout.value,
         spare: form.spare.value,
         remark: form.remark.value
       };
 
-      fetch('https://script.google.com/macros/s/AKfycbx2LhR2Mrp2OTMsP_aEb1NBHpqD6sxJJLdYWl4xKJDF6HWJZucBQz7_ecu7HTsrCxbM/exec', {
+      fetch('https://script.google.com/macros/s/AKfycbzmvclQN672ffkO-tHiGZaS8u1gWjH_4vfkZuchfHAPlD2m4eyOTTvb_WncUhmpzszP/exec', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
