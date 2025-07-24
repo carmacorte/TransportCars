@@ -38,27 +38,13 @@
     button:hover {
       background-color: #005bb5;
     }
-    #scanner-container {
-      width: 100%;
-      margin: 10px 0;
-    }
-    video {
-      width: 100%;
-      border-radius: 10px;
-      display: none;
-    }
   </style>
 </head>
 <body>
   <h1>Registro de Transporte</h1>
 
   <label for="idCar">ID Car:</label>
-  <input type="text" id="idCar" placeholder="Escanea o escribe ID Car" autocomplete="off"/>
-
-  <button onclick="startScanner()">Escanear Código de Barras</button>
-  <div id="scanner-container">
-    <video id="video" playsinline></video>
-  </div>
+  <input type="text" id="idCar" placeholder="Escribe ID Car" autocomplete="off"/>
 
   <label for="dateIn">Date In:</label>
   <input type="text" id="dateIn" readonly/>
@@ -84,52 +70,16 @@
   <button onclick="descargarExcel()">Descargar Excel</button>
 
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-  <script type="module">
-    import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/+esm';
-
-    const videoElement = document.getElementById('video');
-    const idCarInput = document.getElementById('idCar');
-    const codeReader = new BrowserMultiFormatReader();
-
-    function stopScanner() {
-      codeReader.reset();
-      videoElement.style.display = 'none';
-    }
-
-    window.startScanner = async function () {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputDevices = devices.filter(d => d.kind === 'videoinput');
-
-        // Forzar cámara trasera si es posible
-        const backCamera = videoInputDevices.find(device =>
-          device.label.toLowerCase().includes('back')
-        ) || videoInputDevices[0];
-
-        if (!backCamera) {
-          alert("No se encontró cámara disponible.");
-          return;
-        }
-
-        videoElement.style.display = 'block';
-        const result = await codeReader.decodeOnceFromVideoDevice(backCamera.deviceId, 'video');
-        idCarInput.value = result.text;
-        stopScanner();
-      } catch (error) {
-        console.error("Error escaneando:", error);
-        stopScanner();
-      }
-    }
-
-    window.descargarExcel = function () {
-      const idCar = idCarInput.value.trim();
+  <script>
+    function descargarExcel() {
+      const idCar = document.getElementById("idCar").value.trim();
       const dateIn = document.getElementById("dateIn").value;
       const dateOut = document.getElementById("dateOut").value;
       const sparePart = document.getElementById("sparePart").value;
       const remark = document.getElementById("remark").value.trim();
 
       if (!idCar) {
-        alert("Por favor, escanea o escribe el ID Car.");
+        alert("Por favor, escribe el ID Car.");
         return;
       }
 
@@ -145,7 +95,7 @@
       XLSX.writeFile(wb, fileName);
 
       // Reset form
-      idCarInput.value = "";
+      document.getElementById("idCar").value = "";
       document.getElementById("sparePart").value = "";
       document.getElementById("remark").value = "";
     }
