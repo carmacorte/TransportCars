@@ -4,151 +4,153 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro de Transporte</title>
-
-  <!-- ZXing -->
-  <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-
-  <!-- SheetJS -->
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
   <style>
     body {
-      background-color: #f9fbfe;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8fbfe;
+      margin: 0;
       padding: 20px;
-      color: #333;
     }
-
     h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-      color: #1c1c1e;
+      font-size: 1.6em;
     }
-
     label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      font-size: 15px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      box-sizing: border-box;
-      margin-top: 5px;
-      background-color: #fff;
-    }
-
-    button {
-      margin-top: 20px;
-      background-color: #007aff;
-      color: white;
-      border: none;
-      padding: 12px;
-      width: 100%;
-      border-radius: 12px;
-      font-size: 16px;
       font-weight: 600;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: bold;
       cursor: pointer;
     }
-
-    button:hover {
-      background-color: #005fcc;
-    }
-
-    video {
-      margin-top: 10px;
-      border-radius: 10px;
-      width: 100%;
+    #scanner-container {
       display: none;
-    }
-
-    .form-container {
+      position: relative;
+      width: 100%;
       max-width: 400px;
-      margin: 0 auto;
+      margin: 20px auto;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    #interactive canvas, #interactive video {
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h2>Registro de Transporte</h2>
+  <h2>Registro de Transporte</h2>
 
-    <label for="idCar">ID Car:</label>
-    <input type="text" id="idCar" name="idCar" placeholder="Escanea o escribe ID Car" />
+  <label for="idCar">ID Car:</label>
+  <input type="text" id="idCar" placeholder="Escanea o escribe ID Car" autocomplete="off" />
 
-    <button onclick="startBarcodeScanner()">Escanear Código de Barras</button>
-    <video id="barcode-video" playsinline></video>
+  <button onclick="startScanner()">Escanear Código de Barras</button>
 
-    <label for="dateIn">Date In:</label>
-    <input type="date" id="dateIn" name="dateIn" />
-
-    <label for="dateOut">Date Out:</label>
-    <input type="date" id="dateOut" name="dateOut" />
-
-    <label for="sparePart">Spare Part:</label>
-    <select id="sparePart" name="sparePart">
-      <option value="" disabled selected>Selecciona una opción</option>
-      <option value="Fan">Fan</option>
-      <option value="Power Supply">Power Supply</option>
-      <option value="Main Board">Main Board</option>
-      <option value="LED Module">LED Module</option>
-      <option value="Sensor">Sensor</option>
-    </select>
-
-    <label for="remark">Remark:</label>
-    <input type="text" id="remark" name="remark" placeholder="Comentario..." />
-
-    <button onclick="descargarExcel()">Descargar Excel</button>
+  <div id="scanner-container">
+    <div id="interactive" class="viewport"></div>
+    <button onclick="stopScanner()">Detener Escáner</button>
   </div>
 
+  <label for="dateIn">Date In:</label>
+  <input type="date" id="dateIn" />
+
+  <label for="dateOut">Date Out:</label>
+  <input type="date" id="dateOut" />
+
+  <label for="sparePart">Spare Part:</label>
+  <select id="sparePart">
+    <option value="">Selecciona una opción</option>
+    <option>Power Supply</option>
+    <option>Fan</option>
+    <option>Main Board</option>
+    <option>Backplane</option>
+    <option>Cable</option>
+  </select>
+
+  <label for="remark">Remark:</label>
+  <textarea id="remark" placeholder="Comentario..."></textarea>
+
+  <button onclick="descargarExcel()">Descargar Excel</button>
+
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
   <script>
-    let selectedDeviceId;
-    const codeReader = new ZXing.BrowserBarcodeReader();
-    const video = document.getElementById("barcode-video");
+    // Inicializar fechas
+    const hoy = new Date().toISOString().split("T")[0];
+    document.getElementById("dateIn").value = hoy;
+    document.getElementById("dateOut").value = hoy;
 
-    window.startBarcodeScanner = async function () {
-      video.style.display = "block";
-      try {
-        const devices = await codeReader.getVideoInputDevices();
-        selectedDeviceId = devices[0].deviceId;
-
-        await codeReader.decodeOnceFromVideoDevice(selectedDeviceId, 'barcode-video', (result, err) => {
-          if (result) {
-            document.getElementById("idCar").value = result.text;
-            codeReader.reset();
-            video.style.display = "none";
-          }
-        });
-      } catch (err) {
-        alert("No se pudo acceder a la cámara.");
-        video.style.display = "none";
-      }
-    };
-
-    window.descargarExcel = function () {
-      const idCar = document.getElementById("idCar").value;
+    function descargarExcel() {
+      const idCar = document.getElementById("idCar").value.trim();
       const dateIn = document.getElementById("dateIn").value;
       const dateOut = document.getElementById("dateOut").value;
       const sparePart = document.getElementById("sparePart").value;
-      const remark = document.getElementById("remark").value;
+      const remark = document.getElementById("remark").value.trim();
 
       const wb = XLSX.utils.book_new();
-      const wsData = [
+      const ws_data = [
         ["ID Car", "Date In", "Date Out", "Spare Part", "Remark"],
         [idCar, dateIn, dateOut, sparePart, remark]
       ];
-
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      ws["!autofilter"] = undefined;
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Registro");
+      XLSX.writeFile(wb, "registro_transporte.xlsx");
 
-      const fecha = new Date().toISOString().slice(0,10);
-      XLSX.writeFile(wb, `registro_transporte_${fecha}.xlsx`);
-    };
+      // Reset form
+      document.getElementById("idCar").value = "";
+      document.getElementById("sparePart").value = "";
+      document.getElementById("remark").value = "";
+    }
+
+    function startScanner() {
+      document.getElementById("scanner-container").style.display = "block";
+      Quagga.init({
+        inputStream: {
+          type: "LiveStream",
+          target: document.querySelector("#interactive"),
+          constraints: {
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: ["code_128_reader", "ean_reader", "upc_reader"]
+        }
+      }, function (err) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        Quagga.start();
+      });
+
+      Quagga.onDetected(function(result) {
+        const code = result.codeResult.code;
+        document.getElementById("idCar").value = code;
+        stopScanner();
+      });
+    }
+
+    function stopScanner() {
+      Quagga.stop();
+      document.getElementById("scanner-container").style.display = "none";
+    }
   </script>
 </body>
 </html>
