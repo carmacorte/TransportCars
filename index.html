@@ -83,14 +83,13 @@
 
   <button onclick="descargarExcel()">Descargar Excel</button>
 
-  <!-- JS Libraries -->
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script type="module">
     import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/+esm';
 
     const videoElement = document.getElementById('video');
-    const codeReader = new BrowserMultiFormatReader();
     const idCarInput = document.getElementById('idCar');
+    const codeReader = new BrowserMultiFormatReader();
 
     function stopScanner() {
       codeReader.reset();
@@ -101,13 +100,19 @@
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputDevices = devices.filter(d => d.kind === 'videoinput');
-        if (videoInputDevices.length === 0) {
-          alert("No se encontró cámara.");
+
+        // Forzar cámara trasera si es posible
+        const backCamera = videoInputDevices.find(device =>
+          device.label.toLowerCase().includes('back')
+        ) || videoInputDevices[0];
+
+        if (!backCamera) {
+          alert("No se encontró cámara disponible.");
           return;
         }
 
         videoElement.style.display = 'block';
-        const result = await codeReader.decodeOnceFromVideoDevice(videoInputDevices[0].deviceId, 'video');
+        const result = await codeReader.decodeOnceFromVideoDevice(backCamera.deviceId, 'video');
         idCarInput.value = result.text;
         stopScanner();
       } catch (error) {
