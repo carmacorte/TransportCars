@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro de Transporte</title>
 
-  <!-- SheetJS para Excel -->
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <!-- ZXing -->
+  <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 
-  <!-- ZXing para escáner de código de barras -->
-  <script type="module">
-    import { BrowserBarcodeReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
-    window.BarcodeReader = new BrowserBarcodeReader();
-  </script>
+  <!-- SheetJS -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
   <style>
     body {
@@ -84,7 +81,7 @@
     <input type="text" id="idCar" name="idCar" placeholder="Escanea o escribe ID Car" />
 
     <button onclick="startBarcodeScanner()">Escanear Código de Barras</button>
-    <video id="barcode-video"></video>
+    <video id="barcode-video" playsinline></video>
 
     <label for="dateIn">Date In:</label>
     <input type="date" id="dateIn" name="dateIn" />
@@ -108,21 +105,26 @@
     <button onclick="descargarExcel()">Descargar Excel</button>
   </div>
 
-  <script type="module">
-    import { BrowserBarcodeReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
-
-    const codeReader = new BrowserBarcodeReader();
+  <script>
+    let selectedDeviceId;
+    const codeReader = new ZXing.BrowserBarcodeReader();
     const video = document.getElementById("barcode-video");
 
     window.startBarcodeScanner = async function () {
       video.style.display = "block";
       try {
-        const result = await codeReader.decodeOnceFromVideoDevice(undefined, 'barcode-video');
-        document.getElementById("idCar").value = result.text;
-        codeReader.reset();
-        video.style.display = "none";
+        const devices = await codeReader.getVideoInputDevices();
+        selectedDeviceId = devices[0].deviceId;
+
+        await codeReader.decodeOnceFromVideoDevice(selectedDeviceId, 'barcode-video', (result, err) => {
+          if (result) {
+            document.getElementById("idCar").value = result.text;
+            codeReader.reset();
+            video.style.display = "none";
+          }
+        });
       } catch (err) {
-        alert("No se pudo escanear el código.");
+        alert("No se pudo acceder a la cámara.");
         video.style.display = "none";
       }
     };
@@ -141,10 +143,7 @@
       ];
 
       const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      // Limpia filtros o formatos ocultos: solo datos simples
       ws["!autofilter"] = undefined;
-
       XLSX.utils.book_append_sheet(wb, ws, "Registro");
 
       const fecha = new Date().toISOString().slice(0,10);
