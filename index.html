@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>SMTinel Vault — Manufacturing English Intelligence</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -21,243 +21,232 @@
     }
   </script>
   <style>
-    :root{--bg:#07101f;--card:#0d1728;--panel:#111c2f;--line:#22314a;--muted:#94a3b8}
-    body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at top left,#10213d 0,#07101f 35%,#030712 100%);color:#e5edf8;}
-    .glass{background:rgba(13,23,40,.84);backdrop-filter:blur(18px);border:1px solid rgba(148,163,184,.16);box-shadow:0 24px 80px rgba(0,0,0,.35)}
-    .soft{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border:1px solid rgba(148,163,184,.14)}
-    .node{transition:.25s ease;cursor:pointer}.node:hover{transform:translateY(-3px);filter:brightness(1.1)}
-    .rail:before{content:"";position:absolute;left:24px;right:24px;top:50%;height:2px;background:linear-gradient(90deg,#34d399,#fbbf24,#fb7185,#a78bfa,#34d399);opacity:.65}
-    .bucket{min-height:150px}.pulse{animation:pulse 2s ease-in-out infinite}@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
-    .scroll{scrollbar-color:#22314a transparent;scrollbar-width:thin}.scroll::-webkit-scrollbar{width:6px}.scroll::-webkit-scrollbar-thumb{background:#22314a;border-radius:6px}
-    /* Landscape-first mobile behavior */
+    :root{--bg:#07101f;--card:#0d1728;--panel:#111c2f;--line:#22314a;--muted:#94a3b8;--rail:84px;}
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at top left,#10213d 0,#07101f 35%,#030712 100%);color:#e5edf8;overflow:hidden;}
+    .glass{background:rgba(13,23,40,.82);backdrop-filter:blur(18px);border:1px solid rgba(148,163,184,.16);box-shadow:0 24px 80px rgba(0,0,0,.28)}
+    .soft{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));border:1px solid rgba(148,163,184,.14)}
+    .node{transition:.2s ease;cursor:pointer}.node:hover{transform:translateY(-2px);filter:brightness(1.08)}.node.active{border-color:rgba(52,211,153,.55);box-shadow:0 0 0 1px rgba(52,211,153,.18),0 14px 44px rgba(16,185,129,.08)}
+    .scroll{scrollbar-color:#22314a transparent;scrollbar-width:thin}.scroll::-webkit-scrollbar{width:5px;height:5px}.scroll::-webkit-scrollbar-thumb{background:#22314a;border-radius:6px}
+    .rail-btn{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;color:#94a3b8;transition:.2s ease;position:relative;}
+    .rail-btn:hover,.rail-btn.active{background:rgba(16,185,129,.12);color:#6ee7b7;box-shadow:inset 0 0 0 1px rgba(52,211,153,.22)}
+    .rail-btn.active:after{content:"";position:absolute;right:-11px;width:4px;height:28px;border-radius:10px;background:#34d399;box-shadow:0 0 18px #34d399;}
+    .tooltip{position:absolute;left:62px;white-space:nowrap;background:#0b1220;color:#d1fae5;border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:8px 10px;font-size:12px;opacity:0;transform:translateX(-6px);pointer-events:none;transition:.15s;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:50}.rail-btn:hover .tooltip{opacity:1;transform:translateX(0)}
+    .bottom-pill{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:45;display:flex;gap:6px;padding:8px;border-radius:999px;background:rgba(13,23,40,.74);backdrop-filter:blur(18px);border:1px solid rgba(148,163,184,.16);box-shadow:0 18px 60px rgba(0,0,0,.28)}
+    .bottom-pill button{display:flex;align-items:center;gap:7px;border-radius:999px;padding:9px 13px;color:#94a3b8;font-size:12px;font-weight:700}.bottom-pill button.active{background:rgba(16,185,129,.14);color:#86efac}
+    .metric{min-width:112px}.bucket-card{min-height:104px}.safe-area{padding-bottom:72px}
+    .connector{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,rgba(52,211,153,.20),transparent 18%);opacity:.9}
+    .concept-dot{position:absolute;border-radius:999px;border:1px solid rgba(52,211,153,.35);background:rgba(16,185,129,.09);display:grid;place-items:center;text-align:center;padding:8px;box-shadow:0 0 34px rgba(16,185,129,.09)}
+    .concept-dot.locked{border-color:rgba(148,163,184,.25);background:rgba(148,163,184,.06);color:#94a3b8}.concept-dot.warning{border-color:rgba(251,191,36,.38);background:rgba(251,191,36,.08)}
+    .concept-center{box-shadow:0 0 70px rgba(16,185,129,.22), inset 0 0 34px rgba(52,211,153,.08)}
+    @media (max-width: 980px) and (orientation: landscape){
+      :root{--rail:70px}.rail-btn{width:46px;height:46px;border-radius:16px}.app-rail{width:70px!important;padding:10px!important}.main-shell{margin-left:70px!important;padding:12px!important}.hero-title{font-size:28px!important;line-height:1.03!important}.hide-compact{display:none!important}.metric{min-width:92px}.bucket-card{min-height:82px}.panel-pad{padding:14px!important}.bottom-pill button{padding:8px 10px}.bottom-pill span{display:none}.grid-main{grid-template-columns:1.05fr .95fr!important}.dept-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.concept-map{height:300px!important}.right-stack{gap:10px!important}.soft,.glass{border-radius:22px!important}.safe-area{padding-bottom:64px}}
+    @media (min-width: 981px){.bottom-pill{display:none}.main-shell{padding-bottom:24px!important}}
     .orientation-gate{display:none;}
     @media screen and (orientation: portrait) and (max-width: 1024px){
       body{overflow:hidden;background:linear-gradient(180deg,#f8fafc 0%,#eef3f1 55%,#f6f1e8 100%);color:#0f172a;}
-      body > aside, body > main{display:none !important;}
-      .orientation-gate{
-        display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:28px;
-        background:
-          radial-gradient(circle at 18% 8%,rgba(16,185,129,.16),transparent 30%),
-          radial-gradient(circle at 88% 78%,rgba(37,99,235,.14),transparent 32%),
-          linear-gradient(180deg,#fbfdff 0%,#eef4f2 60%,#f7f2e8 100%);
-      }
-      .orientation-card{
-        width:min(92vw,520px);border-radius:34px;padding:30px 26px;text-align:left;
-        background:rgba(255,255,255,.72);backdrop-filter:blur(22px);
-        border:1px solid rgba(15,23,42,.10);
-        box-shadow:0 28px 90px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.7);
-      }
-      .orientation-logo{
-        width:72px;height:72px;border-radius:24px;display:grid;place-items:center;margin-bottom:24px;
-        background:linear-gradient(135deg,#0f5132,#16a34a,#2563eb);
-        box-shadow:0 18px 40px rgba(22,163,74,.22);
-      }
-      .orientation-pill{
-        display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;margin-bottom:18px;
-        color:#047857;background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.18);
-        font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-      }
-      .orientation-title{font-size:44px;line-height:.96;font-weight:900;letter-spacing:-.06em;color:#07140f;margin:0 0 16px;}
-      .orientation-title span{display:block;background:linear-gradient(135deg,#059669,#0f766e,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent;}
-      .orientation-text{font-size:16px;line-height:1.55;color:#475569;margin:0 0 24px;}
-      .orientation-steps{display:grid;gap:12px;margin-top:22px;}
-      .orientation-step{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.66);border:1px solid rgba(15,23,42,.08);font-weight:800;color:#182437;}
-      .rotate-icon{animation:rotateHint 1.8s ease-in-out infinite;}
-      @keyframes rotateHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+      .app-rail,.main-shell,.bottom-pill{display:none !important;}
+      .orientation-gate{display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:28px;background:radial-gradient(circle at 18% 8%,rgba(16,185,129,.16),transparent 30%),radial-gradient(circle at 88% 78%,rgba(37,99,235,.14),transparent 32%),linear-gradient(180deg,#fbfdff 0%,#eef4f2 60%,#f7f2e8 100%)}
+      .orientation-card{width:min(92vw,520px);border-radius:34px;padding:30px 26px;text-align:left;background:rgba(255,255,255,.72);backdrop-filter:blur(22px);border:1px solid rgba(15,23,42,.10);box-shadow:0 28px 90px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.7)}
+      .orientation-logo{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;margin-bottom:24px;background:linear-gradient(135deg,#0f5132,#16a34a,#2563eb);box-shadow:0 18px 40px rgba(22,163,74,.22)}
+      .orientation-pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;margin-bottom:18px;color:#047857;background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.18);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+      .orientation-title{font-size:44px;line-height:.96;font-weight:900;letter-spacing:-.06em;color:#07140f;margin:0 0 16px}.orientation-title span{display:block;background:linear-gradient(135deg,#059669,#0f766e,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent}.orientation-text{font-size:16px;line-height:1.55;color:#475569;margin:0 0 24px}.orientation-steps{display:grid;gap:12px;margin-top:22px}.orientation-step{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.66);border:1px solid rgba(15,23,42,.08);font-weight:800;color:#182437}.rotate-icon{animation:rotateHint 1.8s ease-in-out infinite}@keyframes rotateHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
     }
   </style>
 </head>
-<body class="min-h-screen overflow-hidden">
+<body>
   <div class="orientation-gate" aria-label="Landscape mode required">
     <div class="orientation-card">
-      <div class="orientation-logo">
-        <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
-      </div>
-      <div class="orientation-pill">
-        <i data-lucide="smartphone" class="w-4 h-4 rotate-icon"></i>
-        Landscape Required
-      </div>
+      <div class="orientation-logo"><i data-lucide="shield-check" class="w-10 h-10 text-white"></i></div>
+      <div class="orientation-pill"><i data-lucide="smartphone" class="w-4 h-4 rotate-icon"></i> Operational View Required</div>
       <h1 class="orientation-title">SMTinel Vault <span>Command Center</span></h1>
-      <p class="orientation-text">El mapa de conocimiento, cubetas, bóveda y práctica IA están diseñados para operar en vista horizontal.</p>
+      <p class="orientation-text">El mapa de conocimiento, cubetas, bóveda y práctica IA están optimizados para operar en landscape.</p>
       <div class="orientation-steps">
         <div class="orientation-step"><i data-lucide="rotate-cw" class="w-5 h-5 text-emerald-600"></i> Gira tu dispositivo a landscape.</div>
-        <div class="orientation-step"><i data-lucide="layout-dashboard" class="w-5 h-5 text-blue-600"></i> Entra al Operational View.</div>
+        <div class="orientation-step"><i data-lucide="layout-dashboard" class="w-5 h-5 text-blue-600"></i> Launch Operational View.</div>
       </div>
     </div>
   </div>
 
-  <aside class="fixed left-0 top-0 bottom-0 w-72 glass border-r border-slate-800 p-5 flex flex-col">
-    <div class="flex items-center gap-3 mb-8">
-      <div class="h-12 w-12 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-        <i data-lucide="shield-check" class="w-7 h-7 text-emerald-400"></i>
-      </div>
-      <div>
-        <h1 class="text-2xl font-black tracking-tight text-white">SMTinel Vault</h1>
-        <p class="text-xs text-slate-400">Manufacturing English Intelligence</p>
-      </div>
+  <aside class="app-rail fixed left-0 top-0 bottom-0 w-[84px] z-40 p-4 flex flex-col items-center gap-3 bg-slate-950/72 backdrop-blur-xl border-r border-slate-800/80">
+    <div class="h-14 w-14 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shadow-lg shadow-emerald-500/10 mb-2">
+      <i data-lucide="shield-check" class="w-7 h-7 text-emerald-400"></i>
     </div>
-
-    <nav class="space-y-1 text-sm">
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"><i data-lucide="layout-dashboard" class="w-5 h-5"></i>Dashboard</button>
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-white/5"><i data-lucide="network" class="w-5 h-5"></i>Mapa de Conocimiento</button>
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-white/5"><i data-lucide="archive" class="w-5 h-5"></i>Bóveda Técnica</button>
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-white/5"><i data-lucide="layers-3" class="w-5 h-5"></i>Cubetas de Avance</button>
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-white/5"><i data-lucide="bot" class="w-5 h-5"></i>Práctica con IA</button>
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-white/5"><i data-lucide="mic-2" class="w-5 h-5"></i>Shadowing Lab</button>
-      <button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-white/5"><i data-lucide="route" class="w-5 h-5"></i>Trayectorias por Rol</button>
-    </nav>
-
-    <div class="mt-auto space-y-4">
-      <div class="soft rounded-2xl p-4">
-        <p class="text-xs text-slate-400 uppercase tracking-wider">Racha</p>
-        <div class="flex items-end gap-2 mt-1"><span class="text-3xl font-black text-amber-300">24</span><span class="text-sm text-slate-400 mb-1">días</span></div>
-        <div class="grid grid-cols-7 gap-1 mt-4">
-          <span class="h-2 rounded bg-emerald-400"></span><span class="h-2 rounded bg-emerald-400"></span><span class="h-2 rounded bg-emerald-400"></span><span class="h-2 rounded bg-slate-700"></span><span class="h-2 rounded bg-emerald-400"></span><span class="h-2 rounded bg-emerald-400"></span><span class="h-2 rounded bg-emerald-400"></span>
-        </div>
-      </div>
-      <div class="soft rounded-2xl p-4">
-        <p class="text-xs text-slate-400 uppercase tracking-wider">Readiness operacional</p>
-        <div class="mt-3 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-emerald-400 rounded-full" style="width:72%"></div></div>
-        <p class="text-right text-sm font-bold text-emerald-300 mt-2">72%</p>
-      </div>
-    </div>
+    <button class="rail-btn active" data-view="dashboard"><i data-lucide="layout-dashboard" class="w-6 h-6"></i><span class="tooltip">Dashboard</span></button>
+    <button class="rail-btn" data-view="map"><i data-lucide="network" class="w-6 h-6"></i><span class="tooltip">Mapa</span></button>
+    <button class="rail-btn" data-view="vault"><i data-lucide="archive" class="w-6 h-6"></i><span class="tooltip">Bóveda</span></button>
+    <button class="rail-btn" data-view="buckets"><i data-lucide="layers-3" class="w-6 h-6"></i><span class="tooltip">Cubetas</span></button>
+    <button class="rail-btn" data-view="ai"><i data-lucide="bot" class="w-6 h-6"></i><span class="tooltip">IA Practice</span></button>
+    <button class="rail-btn" data-view="shadow"><i data-lucide="mic-2" class="w-6 h-6"></i><span class="tooltip">Shadowing</span></button>
+    <button class="rail-btn" data-view="analytics"><i data-lucide="bar-chart-3" class="w-6 h-6"></i><span class="tooltip">Analytics</span></button>
+    <button class="rail-btn mt-auto" data-view="settings"><i data-lucide="settings" class="w-6 h-6"></i><span class="tooltip">Settings</span></button>
   </aside>
 
-  <main class="ml-72 h-screen overflow-y-auto scroll p-6 pb-10">
-    <header class="flex items-center justify-between gap-6 mb-6">
-      <div>
-        <p class="text-xs font-mono text-emerald-300 uppercase tracking-[.25em]">Operational Knowledge + English Acquisition</p>
-        <h2 class="text-4xl font-black text-white mt-1">Mapa de Aprendizaje por Rol</h2>
-        <p class="text-slate-400 mt-2">Aprende herramientas de manufactura, su significado técnico y cómo explicarlas en inglés.</p>
+  <nav class="bottom-pill" aria-label="Bottom navigation">
+    <button class="active" data-view="dashboard"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Dashboard</span></button>
+    <button data-view="map"><i data-lucide="network" class="w-4 h-4"></i><span>Mapa</span></button>
+    <button data-view="vault"><i data-lucide="archive" class="w-4 h-4"></i><span>Bóveda</span></button>
+    <button data-view="buckets"><i data-lucide="layers-3" class="w-4 h-4"></i><span>Cubetas</span></button>
+    <button data-view="ai"><i data-lucide="bot" class="w-4 h-4"></i><span>IA</span></button>
+    <button data-view="shadow"><i data-lucide="mic-2" class="w-4 h-4"></i><span>Shadowing</span></button>
+  </nav>
+
+  <main class="main-shell ml-[84px] h-[100dvh] overflow-y-auto scroll p-5 safe-area">
+    <header class="flex items-center justify-between gap-4 mb-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div>
+          <h1 class="text-2xl font-black text-white leading-tight">SMTinel Vault</h1>
+          <p class="text-sm text-slate-400 hide-compact">Manufacturing English Intelligence</p>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="soft rounded-2xl px-5 py-3 text-center"><p class="text-xs text-slate-400">Conceptos en bóveda</p><p class="text-2xl font-black text-white">128</p></div>
-        <div class="soft rounded-2xl px-5 py-3 text-center"><p class="text-xs text-slate-400">Conversation Ready</p><p class="text-2xl font-black text-emerald-300">38</p></div>
-        <div class="soft rounded-2xl px-5 py-3 text-center"><p class="text-xs text-slate-400">At Risk</p><p class="text-2xl font-black text-rose-300">12</p></div>
+      <div class="relative flex-1 max-w-xl hide-compact">
+        <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-slate-500"></i>
+        <input id="globalSearch" class="w-full bg-slate-900/70 border border-slate-700 rounded-2xl pl-11 pr-4 py-3 text-sm outline-none focus:border-emerald-400" placeholder="Buscar OEE, MTTR, PFMEA, 8D, chunk o escenario..." />
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="metric soft rounded-2xl px-4 py-2 text-center"><p class="text-xs text-slate-400">Racha</p><p class="text-lg font-black text-amber-300">24</p></div>
+        <div class="metric soft rounded-2xl px-4 py-2 text-center"><p class="text-xs text-slate-400">Readiness</p><p class="text-lg font-black text-emerald-300">72%</p></div>
+        <div class="metric soft rounded-2xl px-4 py-2 text-center hide-compact"><p class="text-xs text-slate-400">At Risk</p><p class="text-lg font-black text-rose-300">12</p></div>
       </div>
     </header>
 
-    <section class="grid grid-cols-12 gap-5 mb-5">
-      <div class="col-span-8 glass rounded-3xl p-5">
-        <div class="flex items-center justify-between mb-5">
-          <div><h3 class="text-xl font-bold text-white">Departamentos / Roles</h3><p class="text-sm text-slate-400">Cada área desbloquea herramientas, frases y escenarios reales.</p></div>
-          <div class="relative"><i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-500"></i><input class="bg-slate-900/70 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm w-80 outline-none focus:border-emerald-400" placeholder="Buscar OEE, MTTR, PFMEA, 8D..." /></div>
-        </div>
-        <div class="grid grid-cols-3 gap-4">
-          <article class="node soft rounded-2xl p-4 border-emerald-400/25">
-            <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-emerald-400/10 flex items-center justify-center"><i data-lucide="factory" class="text-emerald-300"></i></div><span class="text-xs text-emerald-300 bg-emerald-400/10 px-2 py-1 rounded-full">72%</span></div>
-            <h4 class="mt-4 font-bold text-white">Producción</h4><p class="text-xs text-slate-400 mt-1">OEE, downtime, throughput, line balance.</p>
-          </article>
-          <article class="node soft rounded-2xl p-4">
-            <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-blue-400/10 flex items-center justify-center"><i data-lucide="shield-alert" class="text-blue-300"></i></div><span class="text-xs text-blue-300 bg-blue-400/10 px-2 py-1 rounded-full">68%</span></div>
-            <h4 class="mt-4 font-bold text-white">Calidad</h4><p class="text-xs text-slate-400 mt-1">8D, RCA, containment, customer escalation.</p>
-          </article>
-          <article class="node soft rounded-2xl p-4">
-            <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-amber-400/10 flex items-center justify-center"><i data-lucide="wrench" class="text-amber-300"></i></div><span class="text-xs text-amber-300 bg-amber-400/10 px-2 py-1 rounded-full">54%</span></div>
-            <h4 class="mt-4 font-bold text-white">Mantenimiento</h4><p class="text-xs text-slate-400 mt-1">MTTR, MTBF, PM, breakdown, spare parts.</p>
-          </article>
-          <article class="node soft rounded-2xl p-4">
-            <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-violet-400/10 flex items-center justify-center"><i data-lucide="git-merge" class="text-violet-300"></i></div><span class="text-xs text-violet-300 bg-violet-400/10 px-2 py-1 rounded-full">61%</span></div>
-            <h4 class="mt-4 font-bold text-white">Procesos</h4><p class="text-xs text-slate-400 mt-1">PFMEA, Control Plan, Cpk, validation.</p>
-          </article>
-          <article class="node soft rounded-2xl p-4">
-            <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-cyan-400/10 flex items-center justify-center"><i data-lucide="rocket" class="text-cyan-300"></i></div><span class="text-xs text-cyan-300 bg-cyan-400/10 px-2 py-1 rounded-full">47%</span></div>
-            <h4 class="mt-4 font-bold text-white">NPI</h4><p class="text-xs text-slate-400 mt-1">FAI, pilot run, readiness, validation gates.</p>
-          </article>
-          <article class="node soft rounded-2xl p-4">
-            <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-rose-400/10 flex items-center justify-center"><i data-lucide="package-check" class="text-rose-300"></i></div><span class="text-xs text-rose-300 bg-rose-400/10 px-2 py-1 rounded-full">39%</span></div>
-            <h4 class="mt-4 font-bold text-white">Supply Chain</h4><p class="text-xs text-slate-400 mt-1">shortage, ETA, supplier risk, expedite.</p>
-          </article>
-        </div>
+    <section class="grid grid-cols-[1.1fr_.9fr] grid-main gap-4">
+      <div class="space-y-4 min-w-0">
+        <section class="glass rounded-3xl panel-pad p-5">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <p class="text-xs font-mono text-emerald-300 uppercase tracking-[.24em]">Operational Knowledge + English Acquisition</p>
+              <h2 class="hero-title text-5xl font-black text-white leading-[.98] mt-2 tracking-[-.04em]">Mapa de Aprendizaje <span class="text-emerald-300">por Rol</span></h2>
+              <p class="text-slate-400 mt-2 max-w-2xl">Aprende herramientas de manufactura, su significado técnico y cómo explicarlas en inglés en situaciones reales.</p>
+            </div>
+            <button class="soft rounded-2xl px-4 py-3 text-sm font-bold text-emerald-200 shrink-0"><i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>Todos los roles</button>
+          </div>
+
+          <div class="grid grid-cols-3 dept-grid gap-3" id="departmentGrid"></div>
+        </section>
+
+        <section class="glass rounded-3xl panel-pad p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div><h3 class="text-xl font-bold text-white">Mapa de Conocimiento</h3><p class="text-sm text-slate-400">Nodo activo: <span id="activeDeptLabel">Producción</span></p></div>
+            <div class="flex gap-2"><button class="soft rounded-xl p-3"><i data-lucide="plus" class="w-4 h-4"></i></button><button class="soft rounded-xl p-3"><i data-lucide="maximize-2" class="w-4 h-4"></i></button></div>
+          </div>
+          <div class="relative concept-map h-[380px] rounded-3xl bg-slate-950/40 border border-slate-800 overflow-hidden" id="conceptMap">
+            <div class="connector"></div>
+          </div>
+          <div class="flex flex-wrap gap-4 text-xs text-slate-400 mt-3">
+            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 mr-1"></i>Dominado</span>
+            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-blue-400 mr-1"></i>En progreso</span>
+            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 mr-1"></i>Nuevo</span>
+            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-slate-500 mr-1"></i>Bloqueado</span>
+          </div>
+        </section>
       </div>
 
-      <div class="col-span-4 glass rounded-3xl p-5">
-        <div class="flex items-start justify-between"><div><p class="text-xs font-mono text-emerald-300 uppercase">Concepto seleccionado</p><h3 class="text-3xl font-black text-white mt-2">OEE</h3><p class="text-sm text-slate-400">Overall Equipment Effectiveness</p></div><span class="text-xs bg-emerald-400/10 text-emerald-300 px-3 py-1 rounded-full">Conversation Ready</span></div>
-        <div class="mt-5 soft rounded-2xl p-4">
-          <p class="text-sm text-slate-300 leading-relaxed">OEE mide qué tan efectivamente se utiliza un equipo o línea considerando disponibilidad, desempeño y calidad.</p>
-          <div class="mt-4 rounded-xl border border-slate-700 bg-slate-950/50 p-3 text-center font-mono text-sm text-white">OEE = Availability × Performance × Quality</div>
-        </div>
-        <div class="grid grid-cols-3 gap-3 mt-4 text-center">
-          <div class="soft rounded-xl p-3"><p class="text-xs text-slate-400">Complejidad</p><p class="font-bold text-amber-300">Media</p></div>
-          <div class="soft rounded-xl p-3"><p class="text-xs text-slate-400">Severidad</p><p class="font-bold text-rose-300">Alta</p></div>
-          <div class="soft rounded-xl p-3"><p class="text-xs text-slate-400">Uso</p><p class="font-bold text-blue-300">Muy alto</p></div>
-        </div>
-        <button class="w-full mt-4 py-3 rounded-xl bg-emerald-500 text-slate-950 font-black hover:bg-emerald-400">Practicar OEE en inglés</button>
+      <div class="right-stack flex flex-col gap-4 min-w-0">
+        <section class="glass rounded-3xl panel-pad p-5">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-black text-white">Cubetas de Avance</h3><button class="text-xs soft rounded-xl px-3 py-2">Ver todas</button></div>
+          <div class="grid grid-cols-5 gap-2" id="bucketGrid"></div>
+        </section>
+
+        <section class="glass rounded-3xl panel-pad p-5" id="conceptPanel"></section>
+
+        <section class="glass rounded-3xl panel-pad p-5">
+          <div class="flex items-center justify-between"><h3 class="text-lg font-black text-white">Práctica con IA</h3><span class="text-xs text-rose-300 bg-rose-400/10 rounded-full px-2 py-1">Dificultad alta</span></div>
+          <p class="text-sm text-emerald-300 mt-1" id="scenarioTitle">Escenario: Yield Drop Investigation</p>
+          <div class="mt-3 space-y-2 text-sm">
+            <div class="soft rounded-2xl p-3 text-slate-300" id="aiPrompt">AI Customer: Why did the yield drop after stock-in last week?</div>
+            <div class="rounded-2xl p-3 bg-emerald-500/15 border border-emerald-400/20 text-white ml-6" id="userAnswer">You: The yield dropped mainly because availability was affected by unplanned downtime.</div>
+          </div>
+          <div class="mt-4 flex gap-2"><button class="flex-1 py-3 rounded-xl bg-emerald-500 text-slate-950 font-black">Responder</button><button class="px-4 py-3 rounded-xl soft"><i data-lucide="volume-2" class="w-5 h-5"></i></button></div>
+        </section>
       </div>
     </section>
 
-    <section class="grid grid-cols-12 gap-5 mb-5">
-      <div class="col-span-6 glass rounded-3xl p-5">
-        <h3 class="text-xl font-bold text-white">Cubetas de Aprendizaje</h3>
-        <p class="text-sm text-slate-400 mb-4">Cada concepto avanza por dominio técnico y dominio conversacional.</p>
-        <div class="grid grid-cols-5 gap-3">
-          <div class="bucket rounded-2xl p-4 bg-blue-500/10 border border-blue-400/25"><p class="text-blue-300 font-bold">New Input</p><p class="text-4xl font-black mt-4">18</p><p class="text-xs text-slate-400 mt-2">recién descubiertos</p></div>
-          <div class="bucket rounded-2xl p-4 bg-cyan-500/10 border border-cyan-400/25"><p class="text-cyan-300 font-bold">Understanding</p><p class="text-4xl font-black mt-4">24</p><p class="text-xs text-slate-400 mt-2">entiendo el significado</p></div>
-          <div class="bucket rounded-2xl p-4 bg-amber-500/10 border border-amber-400/25"><p class="text-amber-300 font-bold">Phrase Ready</p><p class="text-4xl font-black mt-4">31</p><p class="text-xs text-slate-400 mt-2">puedo usar frases</p></div>
-          <div class="bucket rounded-2xl p-4 bg-violet-500/10 border border-violet-400/25"><p class="text-violet-300 font-bold">Conversation</p><p class="text-4xl font-black mt-4">16</p><p class="text-xs text-slate-400 mt-2">puedo explicarlo</p></div>
-          <div class="bucket rounded-2xl p-4 bg-emerald-500/10 border border-emerald-400/25"><p class="text-emerald-300 font-bold">Operational</p><p class="text-4xl font-black mt-4">22</p><p class="text-xs text-slate-400 mt-2">listo para reunión</p></div>
-        </div>
+    <section class="grid grid-cols-12 gap-4 mt-4">
+      <div class="col-span-7 glass rounded-3xl panel-pad p-5">
+        <h3 class="text-xl font-bold text-white mb-1">Bóveda Técnica</h3>
+        <p class="text-sm text-slate-400 mb-4">Cada tarjeta guarda concepto + idioma + frases + escenarios + estado de dominio.</p>
+        <div class="grid grid-cols-3 gap-3" id="vaultCards"></div>
       </div>
-
-      <div class="col-span-6 glass rounded-3xl p-5">
-        <h3 class="text-xl font-bold text-white">Bóveda de Conocimiento</h3>
-        <p class="text-sm text-slate-400 mb-4">Ficha viva: concepto + idioma + escenarios + historial de práctica.</p>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="soft rounded-2xl p-4">
-            <div class="flex items-center justify-between mb-3"><h4 class="font-black text-white">OEE</h4><span class="text-xs bg-emerald-400/10 text-emerald-300 rounded-full px-2 py-1">Vaulted</span></div>
-            <dl class="text-sm space-y-2"><div class="flex justify-between"><dt class="text-slate-400">Departamento</dt><dd>Producción</dd></div><div class="flex justify-between"><dt class="text-slate-400">Estado</dt><dd class="text-violet-300">Conversation Ready</dd></div><div class="flex justify-between"><dt class="text-slate-400">Prácticas</dt><dd>8</dd></div><div class="flex justify-between"><dt class="text-slate-400">Siguiente</dt><dd>Bottleneck</dd></div></dl>
-          </div>
-          <div class="soft rounded-2xl p-4">
-            <h4 class="font-black text-white mb-3">Frases guardadas</h4>
-            <ul class="text-sm text-slate-300 space-y-2">
-              <li>• OEE dropped mainly because...</li>
-              <li>• Availability was affected by...</li>
-              <li>• The main contributor was...</li>
-              <li>• We need to separate performance loss...</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="grid grid-cols-12 gap-5">
-      <div class="col-span-8 glass rounded-3xl p-5">
-        <h3 class="text-xl font-bold text-white mb-1">Ruta de Aprendizaje — Producción</h3>
-        <p class="text-sm text-slate-400 mb-8">Los nodos bloqueados se habilitan al dominar prerrequisitos.</p>
-        <div class="relative rail h-28 flex items-center justify-between px-8">
-          <div class="relative z-10 text-center"><div class="mx-auto h-14 w-14 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center"><i data-lucide="check" class="text-emerald-300"></i></div><p class="text-xs mt-2 font-bold">Downtime</p></div>
-          <div class="relative z-10 text-center"><div class="mx-auto h-14 w-14 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center"><i data-lucide="gauge" class="text-emerald-300"></i></div><p class="text-xs mt-2 font-bold">OEE Basics</p></div>
-          <div class="relative z-10 text-center"><div class="mx-auto h-14 w-14 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center"><i data-lucide="move-right" class="text-amber-300"></i></div><p class="text-xs mt-2 font-bold">Throughput</p></div>
-          <div class="relative z-10 text-center"><div class="mx-auto h-14 w-14 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center"><i data-lucide="scale" class="text-amber-300"></i></div><p class="text-xs mt-2 font-bold">Line Balance</p></div>
-          <div class="relative z-10 text-center"><div class="mx-auto h-14 w-14 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center"><i data-lucide="lock" class="text-slate-400"></i></div><p class="text-xs mt-2 font-bold text-slate-400">Bottleneck</p></div>
-          <div class="relative z-10 text-center"><div class="mx-auto h-14 w-14 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center"><i data-lucide="lock" class="text-slate-400"></i></div><p class="text-xs mt-2 font-bold text-slate-400">Capacity</p></div>
-        </div>
-      </div>
-
-      <div class="col-span-4 glass rounded-3xl p-5">
-        <div class="flex items-center justify-between"><h3 class="text-xl font-bold text-white">Práctica IA</h3><span class="text-xs text-rose-300 bg-rose-400/10 rounded-full px-2 py-1">Dificultad alta</span></div>
-        <p class="text-sm text-emerald-300 mt-2">Escenario: Yield Drop Investigation</p>
-        <div class="mt-4 space-y-3">
-          <div class="soft rounded-2xl p-3 text-sm text-slate-300">AI Customer: Why did the yield drop after stock-in last week?</div>
-          <div class="rounded-2xl p-3 text-sm bg-emerald-500/15 border border-emerald-400/20 text-white ml-8">You: The yield dropped mainly because we had an increase in bridge defects detected in AOI on line 3.</div>
-          <div class="soft rounded-2xl p-3 text-sm text-slate-300">AI Customer: What data supports that?</div>
-        </div>
-        <div class="mt-5 flex items-center gap-3"><button class="flex-1 py-3 rounded-xl bg-emerald-500 text-slate-950 font-black">Responder</button><button class="px-4 py-3 rounded-xl soft"><i data-lucide="volume-2" class="w-5 h-5"></i></button></div>
+      <div class="col-span-5 glass rounded-3xl panel-pad p-5">
+        <h3 class="text-xl font-bold text-white mb-1">Ruta de Desbloqueo</h3>
+        <p class="text-sm text-slate-400 mb-4">Avanza por prerrequisitos de rol.</p>
+        <div id="learningPath" class="space-y-3"></div>
       </div>
     </section>
   </main>
+
   <script>
-    lucide.createIcons();
-    async function tryLandscapeLock(){
-      try{
-        if(screen.orientation && screen.orientation.lock){
-          await screen.orientation.lock('landscape');
-        }
-      }catch(e){
-        // Browsers usually require installed PWA/fullscreen for orientation lock. CSS gate still handles portrait.
-      }
+    const departments = [
+      {id:'production', name:'Producción', icon:'factory', progress:68, concepts:28, color:'emerald', tools:['OEE','Downtime','Throughput','Line Balance','Bottleneck Analysis','Capacity Planning'], scenario:'Yield Drop Investigation'},
+      {id:'quality', name:'Calidad', icon:'shield-alert', progress:62, concepts:22, color:'blue', tools:['8D','RCA','Containment','Defect Pareto','Customer Escalation','Audit Finding'], scenario:'Customer Escalation Review'},
+      {id:'maintenance', name:'Mantenimiento', icon:'wrench', progress:55, concepts:18, color:'amber', tools:['MTTR','MTBF','Preventive Maintenance','Breakdown','Spare Parts','Recovery Plan'], scenario:'Equipment Breakdown Update'},
+      {id:'process', name:'Procesos', icon:'git-merge', progress:60, concepts:20, color:'violet', tools:['PFMEA','Control Plan','Cp/Cpk','Process Validation','Work Instruction','Special Characteristics'], scenario:'PFMEA Risk Discussion'},
+      {id:'npi', name:'NPI', icon:'rocket', progress:50, concepts:16, color:'cyan', tools:['FAI','Pilot Run','Readiness','Golden Unit','Build Report','Validation Gate'], scenario:'FAI Presentation'},
+      {id:'supply', name:'Supply Chain', icon:'package-check', progress:45, concepts:14, color:'rose', tools:['Shortage','ETA','Supplier Risk','Expedite','Buffer Stock','Allocation'], scenario:'Supplier Risk Escalation'}
+    ];
+    const conceptDetails = {
+      OEE:{full:'Overall Equipment Effectiveness', dept:'Producción', status:'Conversation Ready', complexity:'Media', severity:'Alta', use:'Muy alto', score:75, formula:'OEE = Availability × Performance × Quality', meaning:'Mide qué tan efectivamente se utiliza un equipo o línea considerando disponibilidad, desempeño y calidad.', phrases:['OEE dropped mainly because...','Availability was affected by...','The main contributor was...','We need to separate performance loss from quality loss.'], unlock:'Bottleneck Analysis'},
+      MTTR:{full:'Mean Time To Repair', dept:'Mantenimiento', status:'Understanding', complexity:'Media', severity:'Alta', use:'Alto', score:48, formula:'MTTR = Total repair time / Number of repairs', meaning:'Indica el tiempo promedio requerido para restaurar un equipo después de una falla.', phrases:['MTTR increased due to delayed troubleshooting.','The recovery time was longer than expected.','We need to reduce repair response time.'], unlock:'Recovery Plan'},
+      PFMEA:{full:'Process Failure Mode and Effects Analysis', dept:'Procesos', status:'Phrase Ready', complexity:'Alta', severity:'Alta', use:'Muy alto', score:58, formula:'Risk = Severity × Occurrence × Detection', meaning:'Ayuda a identificar modos potenciales de falla antes de que impacten producción.', phrases:['The potential failure mode is related to...','The current control is not effective enough.','We need to reduce occurrence through...'], unlock:'Control Plan'},
+      '8D':{full:'Eight Disciplines Problem Solving', dept:'Calidad', status:'Phrase Ready', complexity:'Alta', severity:'Crítica', use:'Muy alto', score:63, formula:'D1 → D8 structured problem solving', meaning:'Metodología estructurada para contener, analizar y corregir problemas de calidad.', phrases:['The containment action was implemented to prevent escapes.','The root cause was validated through...','Corrective actions will prevent recurrence.'], unlock:'Customer Escalation'},
+      FAI:{full:'First Article Inspection', dept:'NPI', status:'New Input', complexity:'Media', severity:'Alta', use:'Alto', score:30, formula:'Design requirements → Inspection evidence → Approval', meaning:'Validación inicial para confirmar que el producto cumple requerimientos antes de escalar producción.', phrases:['The FAI validates critical dimensions and requirements.','We need objective evidence for approval.','The build is pending final validation.'], unlock:'Pilot Run'}
+    };
+    const buckets = [
+      ['New Input',18,'blue','sun'],['Understanding',24,'cyan','book-open'],['Phrase Ready',31,'amber','messages-square'],['Conversation Ready',38,'emerald','users'],['At Risk',12,'rose','triangle-alert']
+    ];
+    let activeDept = departments[0];
+    let activeConcept = conceptDetails.OEE;
+
+    function c(color, shade='300'){return {emerald:'emerald',blue:'blue',amber:'amber',violet:'violet',cyan:'cyan',rose:'rose'}[color] || color}
+    function renderDepartments(){
+      const grid=document.getElementById('departmentGrid');
+      grid.innerHTML=departments.map(d=>`<article class="node soft rounded-2xl p-4 ${d.id===activeDept.id?'active':''}" data-dept="${d.id}">
+        <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-${c(d.color)}-400/10 flex items-center justify-center"><i data-lucide="${d.icon}" class="text-${c(d.color)}-300 w-5 h-5"></i></div><span class="text-xs text-${c(d.color)}-300 bg-${c(d.color)}-400/10 px-2 py-1 rounded-full">${d.progress}%</span></div>
+        <h4 class="mt-3 font-bold text-white">${d.name}</h4><p class="text-xs text-slate-400 mt-1">${d.concepts} conceptos · ${d.tools.slice(0,3).join(', ')}</p>
+      </article>`).join('');
+      grid.querySelectorAll('[data-dept]').forEach(el=>el.onclick=()=>{activeDept=departments.find(d=>d.id===el.dataset.dept);activeConcept=conceptDetails[activeDept.tools[0]]||activeConcept;renderAll();});
     }
-    window.addEventListener('load', tryLandscapeLock);
+    function renderBuckets(){
+      document.getElementById('bucketGrid').innerHTML=buckets.map(b=>`<div class="bucket-card rounded-2xl p-3 bg-${b[2]}-500/10 border border-${b[2]}-400/25 text-center"><p class="text-[11px] font-bold text-${b[2]}-300 leading-tight">${b[0]}</p><p class="text-3xl font-black mt-2 text-white">${b[1]}</p><i data-lucide="${b[3]}" class="w-5 h-5 mx-auto mt-2 text-${b[2]}-300"></i></div>`).join('');
+    }
+    function renderMap(){
+      const m=document.getElementById('conceptMap');
+      const tools=activeDept.tools;
+      document.getElementById('activeDeptLabel').textContent=activeDept.name;
+      const positions=[[50,50,118,'center'],[50,16,92,''],[22,33,92,''],[78,33,92,''],[24,74,94,''],[76,74,94,''],[50,86,90,'warning']];
+      m.innerHTML='<div class="connector"></div>'+tools.map((t,i)=>{
+        const p=positions[i]||[50,50,80,'']; const locked=i>3?'locked':(p[3]||''); const det=conceptDetails[t];
+        return `<button class="concept-dot ${i===0?'concept-center':''} ${locked}" data-concept="${t}" style="left:${p[0]}%;top:${p[1]}%;width:${p[2]}px;height:${p[2]}px;transform:translate(-50%,-50%)">
+          <span class="block text-xs font-black ${i===0?'text-emerald-100':'text-white'}">${t}</span><span class="block text-[10px] text-slate-400">${det?det.status:(i>3?'Locked':'New')}</span>
+        </button>`
+      }).join('');
+      m.querySelectorAll('[data-concept]').forEach(el=>el.onclick=()=>{activeConcept=conceptDetails[el.dataset.concept]||activeConcept;renderConcept();renderVault();renderPath();lucide.createIcons();});
+    }
+    function renderConcept(){
+      const d=activeConcept;
+      document.getElementById('conceptPanel').innerHTML=`
+        <div class="flex items-start justify-between gap-3"><div><p class="text-xs font-mono text-emerald-300 uppercase tracking-widest">Concepto seleccionado</p><h3 class="text-4xl font-black text-white mt-1">${Object.keys(conceptDetails).find(k=>conceptDetails[k]===d)||'OEE'}</h3><p class="text-sm text-slate-400">${d.full}</p></div><span class="text-xs bg-emerald-400/10 text-emerald-300 px-3 py-1 rounded-full whitespace-nowrap">${d.status}</span></div>
+        <div class="mt-4 soft rounded-2xl p-4"><div class="flex gap-4 items-center"><div class="h-20 w-20 rounded-full border-[10px] border-emerald-400/80 border-r-slate-700 grid place-items-center text-xl font-black">${d.score}%</div><p class="text-sm text-slate-300 leading-relaxed">${d.meaning}</p></div><div class="mt-3 rounded-xl border border-slate-700 bg-slate-950/50 p-3 text-center font-mono text-sm text-white">${d.formula}</div></div>
+        <div class="grid grid-cols-3 gap-2 mt-3 text-center"><div class="soft rounded-xl p-3"><p class="text-xs text-slate-400">Complejidad</p><p class="font-bold text-amber-300">${d.complexity}</p></div><div class="soft rounded-xl p-3"><p class="text-xs text-slate-400">Severidad</p><p class="font-bold text-rose-300">${d.severity}</p></div><div class="soft rounded-xl p-3"><p class="text-xs text-slate-400">Uso</p><p class="font-bold text-blue-300">${d.use}</p></div></div>
+        <div class="mt-3"><p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Frases en bóveda</p><ul class="space-y-1 text-sm text-slate-300">${d.phrases.map(p=>`<li>• ${p}</li>`).join('')}</ul></div>`;
+      document.getElementById('scenarioTitle').textContent='Escenario: '+activeDept.scenario;
+      document.getElementById('aiPrompt').textContent='AI Manager: Can you explain '+d.full+' and its current impact?';
+      document.getElementById('userAnswer').textContent='You: The main impact is related to '+d.dept.toLowerCase()+', and we are validating the supporting data.';
+    }
+    function renderVault(){
+      const names=['OEE','MTTR','PFMEA','8D','FAI'];
+      document.getElementById('vaultCards').innerHTML=names.map(n=>{const d=conceptDetails[n];return `<article class="soft rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><h4 class="font-black text-white">${n}</h4><span class="text-[10px] bg-emerald-400/10 text-emerald-300 rounded-full px-2 py-1">${d.status}</span></div><p class="text-xs text-slate-400">${d.full}</p><div class="mt-3 h-1.5 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-emerald-400 rounded-full" style="width:${d.score}%"></div></div><p class="text-xs text-slate-500 mt-2">${d.dept} · ${d.score}% dominio</p></article>`}).join('');
+    }
+    function renderPath(){
+      const items=activeDept.tools.map((t,i)=>({name:t, state:i<2?'Dominado':i<4?'En progreso':'Bloqueado'}));
+      document.getElementById('learningPath').innerHTML=items.map((it,i)=>`<div class="flex items-center gap-3"><div class="h-10 w-10 rounded-full ${it.state==='Dominado'?'bg-emerald-500/20 border-emerald-400 text-emerald-300':it.state==='En progreso'?'bg-amber-500/20 border-amber-400 text-amber-300':'bg-slate-800 border-slate-600 text-slate-400'} border grid place-items-center"><i data-lucide="${it.state==='Bloqueado'?'lock':it.state==='Dominado'?'check':'circle'}" class="w-4 h-4"></i></div><div class="flex-1"><p class="font-bold text-white text-sm">${it.name}</p><p class="text-xs text-slate-500">${it.state}</p></div>${i<items.length-1?'<div class="w-10 h-px bg-slate-700"></div>':''}</div>`).join('');
+    }
+    function renderAll(){renderDepartments();renderBuckets();renderMap();renderConcept();renderVault();renderPath();lucide.createIcons();}
+    document.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active'));document.querySelectorAll(`[data-view="${btn.dataset.view}"]`).forEach(b=>b.classList.add('active'));}));
+    async function tryLandscapeLock(){try{if(screen.orientation&&screen.orientation.lock){await screen.orientation.lock('landscape')}}catch(e){}}
+    window.addEventListener('load',()=>{renderAll();tryLandscapeLock();});
   </script>
 </body>
 </html>
