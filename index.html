@@ -1,252 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SMTinel Vault — Manufacturing English Intelligence</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter','system-ui','sans-serif'], mono: ['JetBrains Mono','monospace'] },
-          colors: {
-            bg: '#f8fafc', card: '#ffffff', panel: '#f1f5f9', line: '#e2e8f0',
-            mint: '#10b981', bluex: '#3b82f6', amberx: '#f59e0b', redx: '#ef4444', violetx: '#8b5cf6', cyanx: '#06b6d4'
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    :root{--bg:#f8fafc;--card:#ffffff;--panel:#f1f5f9;--line:#e2e8f0;--muted:#64748b;--rail:84px;--text:#0f172a;--text-secondary:#475569;}
-    *{box-sizing:border-box}
-    html,body{height:100%;}
-    body{font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 50%,#f1f5f9 100%);color:var(--text);overflow:hidden;}
-    .glass{background:rgba(255,255,255,.95);backdrop-filter:blur(18px);border:1px solid rgba(226,232,240,.8);box-shadow:0 4px 24px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)}
-    .soft{background:linear-gradient(180deg,rgba(241,245,249,.8),rgba(248,250,252,.6));border:1px solid rgba(226,232,240,.6)}
-    .node{transition:.2s ease;cursor:pointer}.node:hover{transform:translateY(-2px);filter:brightness(1.02);box-shadow:0 8px 30px rgba(15,23,42,.08)}.node.active{border-color:rgba(16,185,129,.4);box-shadow:0 0 0 1px rgba(16,185,129,.12),0 14px 44px rgba(16,185,129,.06)}
-    .scroll{scrollbar-color:#cbd5e1 transparent;scrollbar-width:thin}.scroll::-webkit-scrollbar{width:5px;height:5px}.scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:6px}
-    .rail-btn{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;color:#64748b;transition:.2s ease;position:relative;}
-    .rail-btn:hover,.rail-btn.active{background:rgba(16,185,129,.1);color:#059669;box-shadow:inset 0 0 0 1px rgba(16,185,129,.18)}
-    .rail-btn.active:after{content:"";position:absolute;right:-11px;width:4px;height:28px;border-radius:10px;background:#10b981;box-shadow:0 0 12px rgba(16,185,129,.3);}
-    .tooltip{position:absolute;left:62px;white-space:nowrap;background:#ffffff;color:#059669;border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:8px 10px;font-size:12px;opacity:0;transform:translateX(-6px);pointer-events:none;transition:.15s;box-shadow:0 10px 30px rgba(15,23,42,.1);z-index:50}.rail-btn:hover .tooltip{opacity:1;transform:translateX(0)}
-    .bottom-pill{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:45;display:flex;gap:6px;padding:8px;border-radius:999px;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);border:1px solid rgba(226,232,240,.8);box-shadow:0 8px 32px rgba(15,23,42,.08)}
-    .bottom-pill button{display:flex;align-items:center;gap:7px;border-radius:999px;padding:9px 13px;color:#64748b;font-size:12px;font-weight:700}.bottom-pill button.active{background:rgba(16,185,129,.12);color:#059669}
-    .metric{min-width:112px}.bucket-card{min-height:104px}.safe-area{padding-bottom:72px}
-    .connector{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,rgba(16,185,129,.12),transparent 18%);opacity:.9}
-    .concept-dot{position:absolute;border-radius:999px;border:1px solid rgba(226,232,240,.8);background:rgba(255,255,255,.95);display:grid;place-items:center;text-align:center;padding:8px;box-shadow:0 4px 20px rgba(15,23,42,.06);color:var(--text)}
-    .concept-dot.locked{border-color:rgba(203,213,225,.5);background:rgba(241,245,249,.7);color:#94a3b8}.concept-dot.warning{border-color:rgba(245,158,11,.35);background:rgba(254,252,232,.9);color:#92400e}
-    .concept-center{box-shadow:0 0 50px rgba(16,185,129,.15), inset 0 0 20px rgba(16,185,129,.04);background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(5,150,105,.06));border-color:rgba(16,185,129,.3)}
-    @media (max-width: 980px) and (orientation: landscape){
-      :root{--rail:70px}.rail-btn{width:46px;height:46px;border-radius:16px}.app-rail{width:70px!important;padding:10px!important}.main-shell{margin-left:70px!important;padding:12px!important}.hero-title{font-size:28px!important;line-height:1.03!important}.hide-compact{display:none!important}.metric{min-width:92px}.bucket-card{min-height:82px}.panel-pad{padding:14px!important}.bottom-pill button{padding:8px 10px}.bottom-pill span{display:none}.grid-main{grid-template-columns:1.05fr .95fr!important}.dept-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.concept-map{height:300px!important}.right-stack{gap:10px!important}.soft,.glass{border-radius:22px!important}.safe-area{padding-bottom:64px}}
-    @media (min-width: 981px){.bottom-pill{display:none}.main-shell{padding-bottom:24px!important}}
-    .orientation-gate{display:none;}
-    @media screen and (orientation: portrait) and (max-width: 1024px){
-      body{overflow:hidden;background:linear-gradient(180deg,#f8fafc 0%,#eef3f1 55%,#f6f1e8 100%);color:#0f172a;}
-      .app-rail,.main-shell,.bottom-pill{display:none !important;}
-      .orientation-gate{display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:28px;background:radial-gradient(circle at 18% 8%,rgba(16,185,129,.12),transparent 30%),radial-gradient(circle at 88% 78%,rgba(37,99,235,.1),transparent 32%),linear-gradient(180deg,#fbfdff 0%,#eef4f2 60%,#f7f2e8 100%)}
-      .orientation-card{width:min(92vw,520px);border-radius:34px;padding:30px 26px;text-align:left;background:rgba(255,255,255,.72);backdrop-filter:blur(22px);border:1px solid rgba(15,23,42,.10);box-shadow:0 28px 90px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.7)}
-      .orientation-logo{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;margin-bottom:24px;background:linear-gradient(135deg,#0f5132,#16a34a,#2563eb);box-shadow:0 18px 40px rgba(22,163,74,.22)}
-      .orientation-pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;margin-bottom:18px;color:#047857;background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.18);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
-      .orientation-title{font-size:44px;line-height:.96;font-weight:900;letter-spacing:-.06em;color:#07140f;margin:0 0 16px}.orientation-title span{display:block;background:linear-gradient(135deg,#059669,#0f766e,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent}.orientation-text{font-size:16px;line-height:1.55;color:#475569;margin:0 0 24px}.orientation-steps{display:grid;gap:12px;margin-top:22px}.orientation-step{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.66);border:1px solid rgba(15,23,42,.08);font-weight:800;color:#182437}.rotate-icon{animation:rotateHint 1.8s ease-in-out infinite}@keyframes rotateHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+    :root{
+      --bg:#f6f8fb;--ink:#0c1728;--muted:#66748a;--line:#e5ebf2;--card:rgba(255,255,255,.78);--card2:#ffffff;
+      --green:#059669;--green2:#10b981;--blue:#2563eb;--amber:#d97706;--red:#dc2626;--violet:#7c3aed;--cyan:#0891b2;
+      --rail:76px;--bottom:68px;--radius:26px;--shadow:0 18px 55px rgba(15,23,42,.09),0 1px 2px rgba(15,23,42,.05);
     }
+    *{box-sizing:border-box} html,body{height:100%;margin:0} body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at 4% 4%,rgba(16,185,129,.11),transparent 26%),radial-gradient(circle at 96% 0,rgba(37,99,235,.08),transparent 30%),var(--bg);color:var(--ink);overflow:hidden}.mono{font-family:'JetBrains Mono',monospace}.hidden{display:none!important}
+    button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer}.app{display:grid;grid-template-columns:var(--rail) 1fr;height:100dvh;overflow:hidden}.rail{height:100dvh;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.72);backdrop-filter:blur(18px);border-right:1px solid var(--line);box-shadow:8px 0 35px rgba(15,23,42,.04);z-index:20}.brandMark{width:54px;height:54px;border-radius:19px;display:grid;place-items:center;color:white;background:linear-gradient(135deg,#0b6b46,#13b981,#2563eb);box-shadow:0 16px 35px rgba(16,185,129,.24);margin-bottom:8px}.navBtn{width:52px;height:52px;border-radius:20px;display:grid;place-items:center;color:#64748b;position:relative;transition:.18s ease}.navBtn:hover,.navBtn.active{color:var(--green);background:rgba(16,185,129,.12);box-shadow:inset 0 0 0 1px rgba(16,185,129,.2)}.navBtn.active:before{content:"";position:absolute;left:-10px;width:4px;height:28px;border-radius:20px;background:var(--green2);box-shadow:0 0 16px rgba(16,185,129,.55)}.navTip{position:absolute;left:62px;padding:7px 10px;border-radius:12px;background:#102033;color:#d8fff0;border:1px solid rgba(16,185,129,.18);font-size:12px;font-weight:800;white-space:nowrap;opacity:0;transform:translateX(-6px);pointer-events:none;transition:.15s;box-shadow:var(--shadow);z-index:99}.navBtn:hover .navTip{opacity:1;transform:translateX(0)}.collapse{margin-top:auto;background:#f8fafc;border:1px solid var(--line)}
+    .main{height:100dvh;overflow:hidden;display:flex;flex-direction:column;min-width:0}.top{height:78px;display:flex;align-items:center;gap:16px;padding:14px 22px 10px;border-bottom:1px solid var(--line);background:rgba(246,248,251,.62);backdrop-filter:blur(18px);z-index:10}.titleBlock{min-width:265px}.logoText{font-size:26px;font-weight:900;letter-spacing:-.04em;color:#0b2340}.logoText span{color:var(--green)}.sub{font-size:13px;color:var(--muted);margin-top:1px}.search{position:relative;flex:1;max-width:620px}.search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#94a3b8}.search input{width:100%;height:44px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.78);padding:0 14px 0 42px;color:var(--ink);outline:0;box-shadow:0 4px 20px rgba(15,23,42,.03)}.search input:focus{border-color:rgba(16,185,129,.45)}.topStats{display:flex;gap:10px;margin-left:auto}.stat{min-width:96px;height:48px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:0 8px 24px rgba(15,23,42,.04);display:flex;align-items:center;justify-content:center;gap:8px}.stat b{font-size:17px}.stat span{font-size:11px;color:var(--muted);display:block}.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0f766e,#22c55e);display:grid;place-items:center;color:white;font-weight:900}.content{height:calc(100dvh - 78px);overflow:auto;padding:18px 20px calc(var(--bottom) + 18px);scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}.view{display:none}.view.active{display:block}.grid{display:grid;gap:16px}.dashboardGrid{grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr)}.mapGrid{grid-template-columns:minmax(0,1fr) 390px}.card{background:var(--card);border:1px solid rgba(203,213,225,.8);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(18px)}.pad{padding:22px}.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--green);font-weight:900}.hero{font-size:46px;line-height:.98;letter-spacing:-.055em;font-weight:900;margin:8px 0 8px}.hero span{background:linear-gradient(135deg,var(--green),#0f766e,var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}.lead{font-size:18px;line-height:1.45;color:var(--muted);max-width:720px;margin:0}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.sectionTitle{font-size:22px;font-weight:900;letter-spacing:-.035em;margin:0}.small{font-size:13px;color:var(--muted)}.departmentGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.deptCard{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(248,250,252,.78));border-radius:22px;padding:16px;min-height:152px;text-align:left;transition:.18s ease}.deptCard:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(15,23,42,.09)}.deptCard.active{border-color:rgba(16,185,129,.42);box-shadow:0 0 0 1px rgba(16,185,129,.22),0 16px 42px rgba(16,185,129,.09)}.deptIcon{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:var(--toneBg);color:var(--tone)}.deptCard h3{font-size:18px;margin:14px 0 6px}.progress{height:7px;border-radius:99px;background:#edf2f7;overflow:hidden;margin-top:12px}.progress div{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--tone),var(--green2));width:var(--p)}.tag{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;background:rgba(16,185,129,.12);color:#047857}.mapWrap{position:relative;height:410px;border-radius:26px;background:radial-gradient(circle at center,rgba(16,185,129,.10),transparent 34%),linear-gradient(180deg,rgba(255,255,255,.82),rgba(248,250,252,.68));border:1px solid var(--line);overflow:hidden}.mapCenter,.mapNode{position:absolute;display:grid;place-items:center;text-align:center;border-radius:999px;border:1px solid rgba(16,185,129,.28);background:rgba(240,253,250,.86);box-shadow:0 18px 45px rgba(16,185,129,.11);transform:translate(-50%,-50%);cursor:pointer}.mapCenter{left:50%;top:50%;width:148px;height:148px;background:linear-gradient(135deg,#036c4e,#10b981);color:white;box-shadow:0 0 80px rgba(16,185,129,.28)}.mapNode{width:106px;height:106px;color:#0f172a}.mapNode.locked{border-color:#cbd5e1;background:rgba(248,250,252,.86);color:#64748b;box-shadow:none}.mapNode.risk{border-color:rgba(217,119,6,.28);background:rgba(254,243,199,.76)}.mapLine{position:absolute;height:2px;background:linear-gradient(90deg,transparent,rgba(16,185,129,.6),transparent);transform-origin:left center}.bucketGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.bucket{border-radius:20px;padding:14px 10px;text-align:center;background:var(--bBg);border:1px solid var(--bLine);min-height:116px}.bucket b{display:block;font-size:28px;margin-top:8px;color:var(--b)}.bucket span{font-size:11px;line-height:1.1;color:var(--b);font-weight:900}.conceptPanel h2{font-size:44px;letter-spacing:-.05em;line-height:1;margin:6px 0 0}.conceptSummary{display:grid;grid-template-columns:86px 1fr;gap:16px;align-items:center;background:#f8fafc;border:1px solid var(--line);border-radius:22px;padding:16px;margin-top:14px}.ring{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:900;background:conic-gradient(var(--green) calc(var(--score)*1%),#e2e8f0 0)}.ring:after{content:attr(data-score) '%';width:54px;height:54px;border-radius:50%;background:white;display:grid;place-items:center}.formula{font-family:'JetBrains Mono',monospace;background:white;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center;margin-top:12px;color:#182337}.miniStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.mini{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px}.mini span{font-size:12px;color:var(--muted)}.mini b{display:block;margin-top:4px}.phraseList{display:grid;gap:8px;margin-top:14px}.phrase{background:white;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px;color:#334155}.vaultGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.vaultCard{background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid var(--line);border-radius:22px;padding:16px}.vaultCard h3{margin:0;font-size:23px}.pathItem{display:flex;align-items:center;gap:12px;padding:10px;border-radius:18px;background:#f8fafc;border:1px solid var(--line)}.pathIcon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--pathBg);color:var(--path);border:1px solid var(--pathLine)}.moduleToolbar{display:flex;gap:8px;flex-wrap:wrap}.moduleToolbar button{padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:white;color:#475569;font-weight:800;font-size:13px}.moduleToolbar button.active{background:rgba(16,185,129,.12);color:#047857;border-color:rgba(16,185,129,.25)}.twoCol{grid-template-columns:1fr 1fr}.aiChat{background:#f8fafc;border:1px solid var(--line);border-radius:22px;padding:14px}.bubble{padding:12px 14px;border-radius:16px;margin:8px 0;max-width:85%;font-size:14px}.bubble.ai{background:white;border:1px solid var(--line)}.bubble.user{background:linear-gradient(135deg,#059669,#0f766e);color:white;margin-left:auto}.bottomNav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);height:56px;padding:6px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(18px);display:flex;gap:4px;z-index:60}.bottomNav button{height:44px;min-width:54px;padding:0 14px;border-radius:999px;color:#64748b;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:900;font-size:13px}.bottomNav button.active{background:rgba(16,185,129,.12);color:#047857}.orientationGate{display:none}
+    @media (max-width:1100px) and (orientation:landscape){:root{--rail:64px;--bottom:60px}.rail{padding:8px 6px}.brandMark{width:46px;height:46px;border-radius:16px}.navBtn{width:44px;height:44px;border-radius:16px}.top{height:58px;padding:7px 12px}.logoText{font-size:20px}.sub,.search,.hideCompact{display:none!important}.stat{min-width:70px;height:40px;border-radius:14px}.stat span{display:none}.content{height:calc(100dvh - 58px);padding:10px 10px calc(var(--bottom) + 10px)}.dashboardGrid,.mapGrid{grid-template-columns:1fr 1fr}.pad{padding:14px}.hero{font-size:30px}.lead{font-size:14px}.departmentGrid{grid-template-columns:repeat(3,1fr);gap:8px}.deptCard{min-height:112px;padding:12px}.deptCard h3{font-size:15px;margin-top:8px}.deptIcon{width:34px;height:34px;border-radius:13px}.mapWrap{height:285px}.mapCenter{width:104px;height:104px}.mapNode{width:76px;height:76px}.bucket{min-height:80px;padding:9px 6px}.bucket b{font-size:20px}.bucket span{font-size:10px}.conceptPanel h2{font-size:30px}.conceptSummary{grid-template-columns:64px 1fr;padding:10px}.ring{width:62px;height:62px;font-size:16px}.ring:after{width:40px;height:40px}.miniStats{display:none}.vaultGrid{grid-template-columns:repeat(3,1fr)}.sectionTitle{font-size:18px}.bottomNav{height:50px}.bottomNav button{height:38px;min-width:48px;padding:0 10px}.bottomNav span{display:none}.moduleToolbar button{font-size:12px;padding:8px 10px}.twoCol{grid-template-columns:1fr}.phrase{font-size:12px;padding:8px}.topStats{gap:6px}}
+    @media (min-width:1101px){.bottomNav{display:none}}
+    @media (orientation:portrait) and (max-width:1024px){.app,.bottomNav{display:none}.orientationGate{display:flex;position:fixed;inset:0;align-items:center;justify-content:center;padding:28px;background:radial-gradient(circle at 20% 5%,rgba(16,185,129,.14),transparent 28%),linear-gradient(180deg,#fbfdff,#eef5f2 58%,#f7f1e8);z-index:999}.orientationCard{width:min(92vw,520px);border-radius:34px;background:rgba(255,255,255,.74);border:1px solid rgba(15,23,42,.08);box-shadow:var(--shadow);padding:30px}.orientationLogo{width:76px;height:76px;border-radius:24px;display:grid;place-items:center;color:white;background:linear-gradient(135deg,#0b6b46,#10b981,#2563eb);box-shadow:0 20px 44px rgba(16,185,129,.25)}.orientationPill{display:inline-flex;gap:8px;margin-top:24px;padding:9px 14px;border-radius:999px;background:rgba(16,185,129,.11);border:1px solid rgba(16,185,129,.2);color:#047857;font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:12px}.orientationCard h1{font-size:48px;line-height:.96;letter-spacing:-.06em;margin:20px 0 16px}.orientationCard h1 span{display:block;background:linear-gradient(135deg,#059669,#0f766e,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent}.orientationCard p{font-size:18px;line-height:1.5;color:#475569}.step{display:flex;align-items:center;gap:12px;margin-top:12px;padding:15px;border-radius:20px;background:rgba(255,255,255,.7);border:1px solid rgba(15,23,42,.08);font-weight:900}}
   </style>
 </head>
 <body>
-  <div class="orientation-gate" aria-label="Landscape mode required">
-    <div class="orientation-card">
-      <div class="orientation-logo"><i data-lucide="shield-check" class="w-10 h-10 text-white"></i></div>
-      <div class="orientation-pill"><i data-lucide="smartphone" class="w-4 h-4 rotate-icon"></i> Operational View Required</div>
-      <h1 class="orientation-title">SMTinel Vault <span>Command Center</span></h1>
-      <p class="orientation-text">El mapa de conocimiento, cubetas, bóveda y práctica IA están optimizados para operar en landscape.</p>
-      <div class="orientation-steps">
-        <div class="orientation-step"><i data-lucide="rotate-cw" class="w-5 h-5 text-emerald-600"></i> Gira tu dispositivo a landscape.</div>
-        <div class="orientation-step"><i data-lucide="layout-dashboard" class="w-5 h-5 text-blue-600"></i> Launch Operational View.</div>
-      </div>
-    </div>
-  </div>
-
-  <aside class="app-rail fixed left-0 top-0 bottom-0 w-[84px] z-40 p-4 flex flex-col items-center gap-3 bg-white/90 backdrop-blur-xl border-r border-slate-200/80">
-    <div class="h-14 w-14 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shadow-lg shadow-emerald-500/10 mb-2">
-      <i data-lucide="shield-check" class="w-7 h-7 text-emerald-600"></i>
-    </div>
-    <button class="rail-btn active" data-view="dashboard"><i data-lucide="layout-dashboard" class="w-6 h-6"></i><span class="tooltip">Dashboard</span></button>
-    <button class="rail-btn" data-view="map"><i data-lucide="network" class="w-6 h-6"></i><span class="tooltip">Mapa</span></button>
-    <button class="rail-btn" data-view="vault"><i data-lucide="archive" class="w-6 h-6"></i><span class="tooltip">Bóveda</span></button>
-    <button class="rail-btn" data-view="buckets"><i data-lucide="layers-3" class="w-6 h-6"></i><span class="tooltip">Cubetas</span></button>
-    <button class="rail-btn" data-view="ai"><i data-lucide="bot" class="w-6 h-6"></i><span class="tooltip">IA Practice</span></button>
-    <button class="rail-btn" data-view="shadow"><i data-lucide="mic-2" class="w-6 h-6"></i><span class="tooltip">Shadowing</span></button>
-    <button class="rail-btn" data-view="analytics"><i data-lucide="bar-chart-3" class="w-6 h-6"></i><span class="tooltip">Analytics</span></button>
-    <button class="rail-btn mt-auto" data-view="settings"><i data-lucide="settings" class="w-6 h-6"></i><span class="tooltip">Settings</span></button>
-  </aside>
-
-  <nav class="bottom-pill" aria-label="Bottom navigation">
-    <button class="active" data-view="dashboard"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Dashboard</span></button>
-    <button data-view="map"><i data-lucide="network" class="w-4 h-4"></i><span>Mapa</span></button>
-    <button data-view="vault"><i data-lucide="archive" class="w-4 h-4"></i><span>Bóveda</span></button>
-    <button data-view="buckets"><i data-lucide="layers-3" class="w-4 h-4"></i><span>Cubetas</span></button>
-    <button data-view="ai"><i data-lucide="bot" class="w-4 h-4"></i><span>IA</span></button>
-    <button data-view="shadow"><i data-lucide="mic-2" class="w-4 h-4"></i><span>Shadowing</span></button>
-  </nav>
-
-  <main class="main-shell ml-[84px] h-[100dvh] overflow-y-auto scroll p-5 safe-area">
-    <header class="flex items-center justify-between gap-4 mb-4">
-      <div class="flex items-center gap-3 min-w-0">
-        <div>
-          <h1 class="text-2xl font-black text-slate-900 leading-tight">SMTinel Vault</h1>
-          <p class="text-sm text-slate-500 hide-compact">Manufacturing English Intelligence</p>
-        </div>
-      </div>
-      <div class="relative flex-1 max-w-xl hide-compact">
-        <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-slate-400"></i>
-        <input id="globalSearch" class="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 text-slate-700 placeholder-slate-400" placeholder="Buscar OEE, MTTR, PFMEA, 8D, chunk o escenario..." />
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="metric soft rounded-2xl px-4 py-2 text-center"><p class="text-xs text-slate-500">Racha</p><p class="text-lg font-black text-amber-600">24</p></div>
-        <div class="metric soft rounded-2xl px-4 py-2 text-center"><p class="text-xs text-slate-500">Readiness</p><p class="text-lg font-black text-emerald-600">72%</p></div>
-        <div class="metric soft rounded-2xl px-4 py-2 text-center hide-compact"><p class="text-xs text-slate-500">At Risk</p><p class="text-lg font-black text-rose-500">12</p></div>
-      </div>
-    </header>
-
-    <section class="grid grid-cols-[1.1fr_.9fr] grid-main gap-4">
-      <div class="space-y-4 min-w-0">
-        <section class="glass rounded-3xl panel-pad p-5">
-          <div class="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <p class="text-xs font-mono text-emerald-600 uppercase tracking-[.24em]">Operational Knowledge + English Acquisition</p>
-              <h2 class="hero-title text-5xl font-black text-slate-900 leading-[.98] mt-2 tracking-[-.04em]">Mapa de Aprendizaje <span class="text-emerald-600">por Rol</span></h2>
-              <p class="text-slate-500 mt-2 max-w-2xl">Aprende herramientas de manufactura, su significado técnico y cómo explicarlas en inglés en situaciones reales.</p>
+  <div class="orientationGate"><div class="orientationCard"><div class="orientationLogo"><i data-lucide="shield-check"></i></div><div class="orientationPill"><i data-lucide="smartphone"></i> Operational View Required</div><h1>SMTinel Vault <span>Command Center</span></h1><p>El mapa de conocimiento, cubetas, bóveda y práctica IA están optimizados para operar en landscape.</p><div class="step"><i data-lucide="rotate-cw" style="color:#059669"></i> Gira tu dispositivo a landscape.</div><div class="step"><i data-lucide="layout-dashboard" style="color:#2563eb"></i> Launch Operational View.</div></div></div>
+  <div class="app">
+    <aside class="rail">
+      <div class="brandMark"><i data-lucide="shield-check"></i></div>
+      <button class="navBtn active" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span class="navTip">Dashboard</span></button>
+      <button class="navBtn" data-view="map"><i data-lucide="network"></i><span class="navTip">Mapa de Conocimiento</span></button>
+      <button class="navBtn" data-view="vault"><i data-lucide="archive"></i><span class="navTip">Bóveda Técnica</span></button>
+      <button class="navBtn" data-view="buckets"><i data-lucide="layers-3"></i><span class="navTip">Cubetas</span></button>
+      <button class="navBtn" data-view="ai"><i data-lucide="bot"></i><span class="navTip">Práctica IA</span></button>
+      <button class="navBtn" data-view="shadow"><i data-lucide="audio-lines"></i><span class="navTip">Shadowing Lab</span></button>
+      <button class="navBtn" data-view="analytics"><i data-lucide="bar-chart-3"></i><span class="navTip">Analytics</span></button>
+      <button class="navBtn collapse"><i data-lucide="chevrons-left"></i><span class="navTip">Contraer</span></button>
+    </aside>
+    <main class="main">
+      <header class="top">
+        <div class="titleBlock"><div class="logoText">SMTinel <span>Vault</span></div><div class="sub">Manufacturing English Intelligence</div></div>
+        <div class="search"><i data-lucide="search" width="18"></i><input id="searchInput" placeholder="Buscar concepto, herramienta, frase o escenario..." /></div>
+        <div class="topStats"><div class="stat"><b>🔥 24</b><span>Racha</span></div><div class="stat"><b style="color:var(--green)">72%</b><span>Readiness</span></div><div class="stat hideCompact"><b>8</b><span>Nivel</span></div><div class="avatar">CA</div></div>
+      </header>
+      <div class="content">
+        <section class="view active" id="view-dashboard">
+          <div class="grid dashboardGrid">
+            <div class="grid">
+              <div class="card pad"><div class="eyebrow">Operational Knowledge + English Acquisition</div><h1 class="hero">Mapa de Aprendizaje <span>por Rol</span></h1><p class="lead">Aprende herramientas de manufactura, su significado técnico y cómo explicarlas en inglés en situaciones reales.</p><div class="departmentGrid" id="deptGridDash"></div></div>
+              <div class="card pad"><div class="row"><div><h2 class="sectionTitle">Bóveda Técnica</h2><p class="small">Conceptos guardados con idioma, frases, escenarios y estado.</p></div><button class="tag" data-jump="vault">Ver bóveda</button></div><div class="vaultGrid" id="vaultPreview" style="margin-top:14px"></div></div>
             </div>
-            <button class="soft rounded-2xl px-4 py-3 text-sm font-bold text-emerald-700 shrink-0 hover:bg-emerald-50"><i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>Todos los roles</button>
-          </div>
-
-          <div class="grid grid-cols-3 dept-grid gap-3" id="departmentGrid"></div>
-        </section>
-
-        <section class="glass rounded-3xl panel-pad p-5">
-          <div class="flex items-center justify-between mb-3">
-            <div><h3 class="text-xl font-bold text-slate-900">Mapa de Conocimiento</h3><p class="text-sm text-slate-500">Nodo activo: <span id="activeDeptLabel">Producción</span></p></div>
-            <div class="flex gap-2"><button class="soft rounded-xl p-3 hover:bg-slate-100"><i data-lucide="plus" class="w-4 h-4 text-slate-600"></i></button><button class="soft rounded-xl p-3 hover:bg-slate-100"><i data-lucide="maximize-2" class="w-4 h-4 text-slate-600"></i></button></div>
-          </div>
-          <div class="relative concept-map h-[380px] rounded-3xl bg-slate-50/80 border border-slate-200 overflow-hidden" id="conceptMap">
-            <div class="connector"></div>
-          </div>
-          <div class="flex flex-wrap gap-4 text-xs text-slate-500 mt-3">
-            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1"></i>Dominado</span>
-            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500 mr-1"></i>En progreso</span>
-            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 mr-1"></i>Nuevo</span>
-            <span><i class="inline-block w-2.5 h-2.5 rounded-full bg-slate-400 mr-1"></i>Bloqueado</span>
+            <div class="grid">
+              <div class="card pad"><div class="row"><h2 class="sectionTitle">Cubetas de Avance</h2><button class="tag" data-jump="buckets">Ver todas</button></div><div class="bucketGrid" id="bucketGridDash" style="margin-top:14px"></div></div>
+              <div class="card pad conceptPanel" id="conceptPanelDash"></div>
+              <div class="card pad"><div class="row"><div><h2 class="sectionTitle">Ruta de Desbloqueo</h2><p class="small">Prerrequisitos del rol activo.</p></div><span class="tag" id="activeRoleTag">Producción</span></div><div id="pathDash" style="display:grid;gap:10px;margin-top:14px"></div></div>
+            </div>
           </div>
         </section>
+        <section class="view" id="view-map"><div class="grid mapGrid"><div class="card pad"><div class="row"><div><div class="eyebrow">Knowledge Graph</div><h2 class="sectionTitle" style="font-size:32px">Mapa de Conocimiento</h2><p class="small">Selecciona un departamento y domina sus herramientas críticas.</p></div><div class="moduleToolbar" id="deptToolbar"></div></div><div class="mapWrap" id="mapWrap" style="margin-top:16px"></div></div><div class="card pad conceptPanel" id="conceptPanelMap"></div></div></section>
+        <section class="view" id="view-vault"><div class="card pad"><div class="row"><div><div class="eyebrow">Technical Knowledge Vault</div><h2 class="sectionTitle" style="font-size:34px">Bóveda Técnica</h2><p class="small">Cada tarjeta conserva definición técnica, frases, shadowing y práctica IA.</p></div><span class="tag" id="vaultCount">0 conceptos</span></div><div class="vaultGrid" id="vaultFull" style="margin-top:18px"></div></div></section>
+        <section class="view" id="view-buckets"><div class="grid twoCol"><div class="card pad"><div class="eyebrow">Learning Buckets</div><h2 class="sectionTitle" style="font-size:34px">Cubetas de Avance</h2><p class="small">Clasifica el avance por complejidad, severidad y dominio conversacional.</p><div class="bucketGrid" id="bucketGridFull" style="margin-top:18px"></div></div><div class="card pad"><h2 class="sectionTitle">Conceptos por estado</h2><div id="bucketConcepts" style="display:grid;gap:10px;margin-top:16px"></div></div></div></section>
+        <section class="view" id="view-ai"><div class="grid twoCol"><div class="card pad"><div class="eyebrow">AI Roleplay</div><h2 class="sectionTitle" style="font-size:34px">Práctica con IA</h2><p class="small" id="scenarioText">Escenario activo.</p><div class="aiChat" style="margin-top:16px"><div class="bubble ai" id="aiPrompt"></div><div class="bubble user" id="aiAnswer"></div><button class="tag" style="margin-top:10px">Responder por voz</button></div></div><div class="card pad"><h2 class="sectionTitle">Preguntas esperadas</h2><div id="questions" class="phraseList"></div></div></div></section>
+        <section class="view" id="view-shadow"><div class="grid twoCol"><div class="card pad"><div class="eyebrow">Shadowing Lab</div><h2 class="sectionTitle" style="font-size:34px">Automatización oral</h2><p class="small">Repite chunks del concepto activo hasta moverlos a Conversation Ready.</p><div id="shadowPhrases" class="phraseList"></div></div><div class="card pad"><h2 class="sectionTitle">Waveform</h2><div style="height:150px;border-radius:24px;background:linear-gradient(90deg,rgba(16,185,129,.08),rgba(37,99,235,.08));display:flex;align-items:center;justify-content:center;color:var(--green);font-weight:900">Audio loop · 0.85x · Native speed</div></div></div></section>
+        <section class="view" id="view-analytics"><div class="grid twoCol"><div class="card pad"><div class="eyebrow">Communication Analytics</div><h2 class="sectionTitle" style="font-size:34px">Operational Readiness</h2><div class="conceptSummary"><div class="ring" style="--score:72" data-score="72"></div><p>Tu dominio operacional combina vocabulario activo, uso de chunks, respuesta oral y capacidad de explicar conceptos técnicos.</p></div></div><div class="card pad"><h2 class="sectionTitle">Métricas</h2><div id="metricsList" class="phraseList"></div></div></div></section>
       </div>
-
-      <div class="right-stack flex flex-col gap-4 min-w-0">
-        <section class="glass rounded-3xl panel-pad p-5">
-          <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-black text-slate-900">Cubetas de Avance</h3><button class="text-xs soft rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">Ver todas</button></div>
-          <div class="grid grid-cols-5 gap-2" id="bucketGrid"></div>
-        </section>
-
-        <section class="glass rounded-3xl panel-pad p-5" id="conceptPanel"></section>
-
-        <section class="glass rounded-3xl panel-pad p-5">
-          <div class="flex items-center justify-between"><h3 class="text-lg font-black text-slate-900">Práctica con IA</h3><span class="text-xs text-rose-600 bg-rose-50 rounded-full px-2 py-1 border border-rose-200">Dificultad alta</span></div>
-          <p class="text-sm text-emerald-700 mt-1" id="scenarioTitle">Escenario: Yield Drop Investigation</p>
-          <div class="mt-3 space-y-2 text-sm">
-            <div class="soft rounded-2xl p-3 text-slate-600 bg-slate-50" id="aiPrompt">AI Customer: Why did the yield drop after stock-in last week?</div>
-            <div class="rounded-2xl p-3 bg-emerald-50 border border-emerald-200 text-slate-800 ml-6" id="userAnswer">You: The yield dropped mainly because availability was affected by unplanned downtime.</div>
-          </div>
-          <div class="mt-4 flex gap-2"><button class="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-black hover:bg-emerald-700 transition-colors">Responder</button><button class="px-4 py-3 rounded-xl soft hover:bg-slate-100"><i data-lucide="volume-2" class="w-5 h-5 text-slate-600"></i></button></div>
-        </section>
-      </div>
-    </section>
-
-    <section class="grid grid-cols-12 gap-4 mt-4">
-      <div class="col-span-7 glass rounded-3xl panel-pad p-5">
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Bóveda Técnica</h3>
-        <p class="text-sm text-slate-500 mb-4">Cada tarjeta guarda concepto + idioma + frases + escenarios + estado de dominio.</p>
-        <div class="grid grid-cols-3 gap-3" id="vaultCards"></div>
-      </div>
-      <div class="col-span-5 glass rounded-3xl panel-pad p-5">
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Ruta de Desbloqueo</h3>
-        <p class="text-sm text-slate-500 mb-4">Avanza por prerrequisitos de rol.</p>
-        <div id="learningPath" class="space-y-3"></div>
-      </div>
-    </section>
-  </main>
-
+    </main>
+  </div>
+  <nav class="bottomNav">
+    <button class="active" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button><button data-view="map"><i data-lucide="network"></i><span>Mapa</span></button><button data-view="vault"><i data-lucide="archive"></i><span>Bóveda</span></button><button data-view="buckets"><i data-lucide="layers-3"></i><span>Cubetas</span></button><button data-view="ai"><i data-lucide="bot"></i><span>IA</span></button><button data-view="shadow"><i data-lucide="audio-lines"></i><span>Shadowing</span></button>
+  </nav>
   <script>
-    const departments = [
-      {id:'production', name:'Producción', icon:'factory', progress:68, concepts:28, color:'emerald', tools:['OEE','Downtime','Throughput','Line Balance','Bottleneck Analysis','Capacity Planning'], scenario:'Yield Drop Investigation'},
-      {id:'quality', name:'Calidad', icon:'shield-alert', progress:62, concepts:22, color:'blue', tools:['8D','RCA','Containment','Defect Pareto','Customer Escalation','Audit Finding'], scenario:'Customer Escalation Review'},
-      {id:'maintenance', name:'Mantenimiento', icon:'wrench', progress:55, concepts:18, color:'amber', tools:['MTTR','MTBF','Preventive Maintenance','Breakdown','Spare Parts','Recovery Plan'], scenario:'Equipment Breakdown Update'},
-      {id:'process', name:'Procesos', icon:'git-merge', progress:60, concepts:20, color:'violet', tools:['PFMEA','Control Plan','Cp/Cpk','Process Validation','Work Instruction','Special Characteristics'], scenario:'PFMEA Risk Discussion'},
-      {id:'npi', name:'NPI', icon:'rocket', progress:50, concepts:16, color:'cyan', tools:['FAI','Pilot Run','Readiness','Golden Unit','Build Report','Validation Gate'], scenario:'FAI Presentation'},
-      {id:'supply', name:'Supply Chain', icon:'package-check', progress:45, concepts:14, color:'rose', tools:['Shortage','ETA','Supplier Risk','Expedite','Buffer Stock','Allocation'], scenario:'Supplier Risk Escalation'}
+    const tones={emerald:['#059669','rgba(16,185,129,.12)','rgba(16,185,129,.25)'],blue:['#2563eb','rgba(37,99,235,.10)','rgba(37,99,235,.22)'],amber:['#d97706','rgba(245,158,11,.12)','rgba(245,158,11,.24)'],red:['#dc2626','rgba(239,68,68,.10)','rgba(239,68,68,.23)'],violet:['#7c3aed','rgba(124,58,237,.10)','rgba(124,58,237,.22)'],cyan:['#0891b2','rgba(6,182,212,.10)','rgba(6,182,212,.22)'],slate:['#64748b','rgba(100,116,139,.10)','rgba(100,116,139,.22)']};
+    const departments=[
+      {id:'production',name:'Producción',icon:'factory',color:'emerald',progress:68,concepts:['OEE','Downtime','Throughput','Line Balance','Bottleneck Analysis','Capacity Planning'],scenario:'Yield Drop Investigation'},
+      {id:'quality',name:'Calidad',icon:'shield-alert',color:'blue',progress:62,concepts:['8D','RCA','Containment','Defect Pareto','Customer Escalation','Audit Finding'],scenario:'Customer Escalation Review'},
+      {id:'maintenance',name:'Mantenimiento',icon:'wrench',color:'amber',progress:55,concepts:['MTTR','MTBF','Preventive Maintenance','Breakdown','Spare Parts','Recovery Plan'],scenario:'Equipment Breakdown Update'},
+      {id:'process',name:'Procesos',icon:'git-merge',color:'violet',progress:60,concepts:['PFMEA','Control Plan','Cp/Cpk','Process Validation','Work Instruction','Special Characteristics'],scenario:'PFMEA Risk Discussion'},
+      {id:'npi',name:'NPI',icon:'rocket',color:'cyan',progress:50,concepts:['FAI','Pilot Run','Readiness','Golden Unit','Build Report','Validation Gate'],scenario:'FAI Presentation'},
+      {id:'supply',name:'Cadena de Suministro',icon:'truck',color:'red',progress:45,concepts:['Shortage','ETA','Supplier Risk','Expedite','Buffer Stock','Allocation'],scenario:'Supplier Risk Escalation'}
     ];
-    const conceptDetails = {
-      OEE:{full:'Overall Equipment Effectiveness', dept:'Producción', status:'Conversation Ready', complexity:'Media', severity:'Alta', use:'Muy alto', score:75, formula:'OEE = Availability × Performance × Quality', meaning:'Mide qué tan efectivamente se utiliza un equipo o línea considerando disponibilidad, desempeño y calidad.', phrases:['OEE dropped mainly because...','Availability was affected by...','The main contributor was...','We need to separate performance loss from quality loss.'], unlock:'Bottleneck Analysis'},
-      MTTR:{full:'Mean Time To Repair', dept:'Mantenimiento', status:'Understanding', complexity:'Media', severity:'Alta', use:'Alto', score:48, formula:'MTTR = Total repair time / Number of repairs', meaning:'Indica el tiempo promedio requerido para restaurar un equipo después de una falla.', phrases:['MTTR increased due to delayed troubleshooting.','The recovery time was longer than expected.','We need to reduce repair response time.'], unlock:'Recovery Plan'},
-      PFMEA:{full:'Process Failure Mode and Effects Analysis', dept:'Procesos', status:'Phrase Ready', complexity:'Alta', severity:'Alta', use:'Muy alto', score:58, formula:'Risk = Severity × Occurrence × Detection', meaning:'Ayuda a identificar modos potenciales de falla antes de que impacten producción.', phrases:['The potential failure mode is related to...','The current control is not effective enough.','We need to reduce occurrence through...'], unlock:'Control Plan'},
-      '8D':{full:'Eight Disciplines Problem Solving', dept:'Calidad', status:'Phrase Ready', complexity:'Alta', severity:'Crítica', use:'Muy alto', score:63, formula:'D1 → D8 structured problem solving', meaning:'Metodología estructurada para contener, analizar y corregir problemas de calidad.', phrases:['The containment action was implemented to prevent escapes.','The root cause was validated through...','Corrective actions will prevent recurrence.'], unlock:'Customer Escalation'},
-      FAI:{full:'First Article Inspection', dept:'NPI', status:'New Input', complexity:'Media', severity:'Alta', use:'Alto', score:30, formula:'Design requirements → Inspection evidence → Approval', meaning:'Validación inicial para confirmar que el producto cumple requerimientos antes de escalar producción.', phrases:['The FAI validates critical dimensions and requirements.','We need objective evidence for approval.','The build is pending final validation.'], unlock:'Pilot Run'}
+    const concept={
+      OEE:{dept:'Producción',full:'Overall Equipment Effectiveness',status:'Conversation Ready',bucket:'Conversation Ready',score:75,complexity:'Media',severity:'Alta',use:'Muy alto',formula:'OEE = Availability × Performance × Quality',meaning:'Mide qué tan efectivamente se utiliza un equipo o línea considerando disponibilidad, desempeño y calidad.',phrases:['OEE dropped mainly because availability was affected.','The main contributor to low OEE was unplanned downtime.','We need to separate performance loss from quality loss.'],questions:['Why did OEE drop this week?','Which factor impacted OEE the most?','What action will recover availability?']},
+      Downtime:{dept:'Producción',full:'Tiempo muerto / paro',status:'Operationally Ready',bucket:'Operationally Ready',score:82,complexity:'Baja',severity:'Alta',use:'Muy alto',formula:'Downtime = Time not producing / Planned time',meaning:'Periodo en el que una línea o equipo no produce por falla, cambio, espera o restricción.',phrases:['Downtime was mainly caused by material waiting time.','The line was stopped for troubleshooting.','We need to classify planned and unplanned downtime.'],questions:['Was the downtime planned or unplanned?','How long was the line stopped?']},
+      Throughput:{dept:'Producción',full:'Ritmo de salida / unidades producidas',status:'Understanding',bucket:'Understanding',score:55,complexity:'Media',severity:'Media',use:'Alto',formula:'Throughput = Units produced / Time',meaning:'Cantidad de unidades producidas por una línea o proceso en un periodo específico.',phrases:['Throughput decreased during the second shift.','The bottleneck is limiting throughput.','We need to compare output versus target.'],questions:['What is limiting throughput?','Which station is the bottleneck?']},
+      'Line Balance':{dept:'Producción',full:'Balanceo de línea',status:'New Input',bucket:'New Input',score:40,complexity:'Media',severity:'Media',use:'Alto',formula:'Balanced load across stations',meaning:'Distribución de carga de trabajo entre estaciones para evitar cuellos de botella.',phrases:['The line is not balanced across stations.','Station 3 has a higher workload.'],questions:['Which station has excess cycle time?']},
+      'Bottleneck Analysis':{dept:'Producción',full:'Análisis de cuello de botella',status:'Locked',bucket:'At Risk',score:20,complexity:'Alta',severity:'Alta',use:'Muy alto',formula:'Constraint controls system output',meaning:'Identificación de la estación o recurso que limita la salida total del proceso.',phrases:['The bottleneck appears to be at inspection.','The constraint is limiting total output.'],questions:['What evidence supports the bottleneck?']},
+      'Capacity Planning':{dept:'Producción',full:'Planeación de capacidad',status:'Locked',bucket:'New Input',score:15,complexity:'Alta',severity:'Media',use:'Medio',formula:'Demand vs available capacity',meaning:'Validación de recursos, tiempo y capacidad disponible contra demanda esperada.',phrases:['Available capacity is below customer demand.'],questions:['Do we have enough capacity for the ramp?']},
+      MTTR:{dept:'Mantenimiento',full:'Mean Time To Repair',status:'Understanding',bucket:'Understanding',score:48,complexity:'Media',severity:'Alta',use:'Alto',formula:'MTTR = Total repair time / Number of repairs',meaning:'Tiempo promedio requerido para restaurar un equipo después de una falla.',phrases:['MTTR increased due to delayed troubleshooting.','The recovery time was longer than expected.'],questions:['Why did MTTR increase?','What delayed the repair?']},
+      MTBF:{dept:'Mantenimiento',full:'Mean Time Between Failures',status:'New Input',bucket:'New Input',score:35,complexity:'Media',severity:'Alta',use:'Alto',formula:'MTBF = Operating time / Failures',meaning:'Tiempo promedio de operación entre fallas de un equipo.',phrases:['MTBF is decreasing due to repeated failures.'],questions:['How often is the failure recurring?']},
+      'Preventive Maintenance':{dept:'Mantenimiento',full:'Mantenimiento preventivo',status:'Phrase Ready',bucket:'Phrase Ready',score:61,complexity:'Baja',severity:'Media',use:'Alto',formula:'Scheduled maintenance before failure',meaning:'Actividades planificadas para prevenir fallas y reducir paros no programados.',phrases:['Preventive maintenance was completed before the shift.'],questions:['Was PM completed on schedule?']},
+      PFMEA:{dept:'Procesos',full:'Process Failure Mode and Effects Analysis',status:'Phrase Ready',bucket:'Phrase Ready',score:58,complexity:'Alta',severity:'Alta',use:'Muy alto',formula:'Risk = Severity × Occurrence × Detection',meaning:'Herramienta para identificar modos potenciales de falla antes de que impacten producción.',phrases:['The potential failure mode is related to process variation.','The current control is not effective enough.'],questions:['What is the failure mode?','Which control detects this risk?']},
+      'Control Plan':{dept:'Procesos',full:'Plan de control',status:'Understanding',bucket:'Understanding',score:52,complexity:'Media',severity:'Alta',use:'Muy alto',formula:'Process step → control method → reaction plan',meaning:'Documento que define controles, frecuencia, métodos y reacción ante desviaciones.',phrases:['The control plan defines the inspection frequency.'],questions:['What is the reaction plan?']},
+      'Cp/Cpk':{dept:'Procesos',full:'Process Capability',status:'New Input',bucket:'New Input',score:32,complexity:'Alta',severity:'Media',use:'Medio',formula:'Capability vs specification limits',meaning:'Mide la capacidad del proceso para mantenerse dentro de especificación.',phrases:['Cpk is below the required threshold.'],questions:['Is the process capable?']},
+      '8D':{dept:'Calidad',full:'Eight Disciplines Problem Solving',status:'Phrase Ready',bucket:'Phrase Ready',score:63,complexity:'Alta',severity:'Crítica',use:'Muy alto',formula:'D1 → D8 structured problem solving',meaning:'Metodología estructurada para contener, analizar y corregir problemas de calidad.',phrases:['The containment action was implemented to prevent escapes.','The root cause was validated through evidence.'],questions:['What is the verified root cause?','What prevents recurrence?']},
+      RCA:{dept:'Calidad',full:'Root Cause Analysis',status:'Conversation Ready',bucket:'Conversation Ready',score:70,complexity:'Alta',severity:'Alta',use:'Muy alto',formula:'Symptom → cause chain → verified root cause',meaning:'Proceso para identificar y validar la causa raíz real de un problema.',phrases:['The root cause was confirmed by replication.'],questions:['How was the root cause validated?']},
+      Containment:{dept:'Calidad',full:'Contención',status:'Operationally Ready',bucket:'Operationally Ready',score:80,complexity:'Media',severity:'Crítica',use:'Muy alto',formula:'Stop escape + protect customer',meaning:'Acción inmediata para evitar que el defecto llegue al cliente o continúe propagándose.',phrases:['Containment was implemented across affected lots.'],questions:['Which serial numbers are contained?']},
+      FAI:{dept:'NPI',full:'First Article Inspection',status:'New Input',bucket:'New Input',score:30,complexity:'Media',severity:'Alta',use:'Alto',formula:'Requirements → Evidence → Approval',meaning:'Validación inicial para confirmar que el producto cumple requerimientos antes de escalar producción.',phrases:['The FAI validates critical dimensions and requirements.'],questions:['Which requirement failed FAI?']},
+      Shortage:{dept:'Cadena de Suministro',full:'Falta de material',status:'Understanding',bucket:'Understanding',score:46,complexity:'Media',severity:'Alta',use:'Alto',formula:'Demand > Available supply',meaning:'Condición donde la disponibilidad de material no cubre la demanda de producción.',phrases:['The shortage is impacting the production schedule.'],questions:['What is the recovery ETA?']}
     };
-    const buckets = [
-      ['New Input',18,'blue','sun'],['Understanding',24,'cyan','book-open'],['Phrase Ready',31,'amber','messages-square'],['Conversation Ready',38,'emerald','users'],['At Risk',12,'rose','triangle-alert']
-    ];
-    let activeDept = departments[0];
-    let activeConcept = conceptDetails.OEE;
-
-    function c(color, shade='600'){return {emerald:'emerald',blue:'blue',amber:'amber',violet:'violet',cyan:'cyan',rose:'rose'}[color] || color}
-    function renderDepartments(){
-      const grid=document.getElementById('departmentGrid');
-      grid.innerHTML=departments.map(d=>`<article class="node soft rounded-2xl p-4 ${d.id===activeDept.id?'active':''}" data-dept="${d.id}">
-        <div class="flex items-center justify-between"><div class="h-10 w-10 rounded-xl bg-${c(d.color)}-100 flex items-center justify-center"><i data-lucide="${d.icon}" class="text-${c(d.color)}-600 w-5 h-5"></i></div><span class="text-xs text-${c(d.color)}-700 bg-${c(d.color)}-100 px-2 py-1 rounded-full font-semibold">${d.progress}%</span></div>
-        <h4 class="mt-3 font-bold text-slate-900">${d.name}</h4><p class="text-xs text-slate-500 mt-1">${d.concepts} conceptos · ${d.tools.slice(0,3).join(', ')}</p>
-      </article>`).join('');
-      grid.querySelectorAll('[data-dept]').forEach(el=>el.onclick=()=>{activeDept=departments.find(d=>d.id===el.dataset.dept);activeConcept=conceptDetails[activeDept.tools[0]]||activeConcept;renderAll();});
-    }
-    function renderBuckets(){
-      document.getElementById('bucketGrid').innerHTML=buckets.map(b=>`<div class="bucket-card rounded-2xl p-3 bg-${b[2]}-50 border border-${b[2]}-200 text-center"><p class="text-[11px] font-bold text-${b[2]}-700 leading-tight">${b[0]}</p><p class="text-3xl font-black mt-2 text-slate-900">${b[1]}</p><i data-lucide="${b[3]}" class="w-5 h-5 mx-auto mt-2 text-${b[2]}-500"></i></div>`).join('');
-    }
-    function renderMap(){
-      const m=document.getElementById('conceptMap');
-      const tools=activeDept.tools;
-      document.getElementById('activeDeptLabel').textContent=activeDept.name;
-      const positions=[[50,50,118,'center'],[50,16,92,''],[22,33,92,''],[78,33,92,''],[24,74,94,''],[76,74,94,''],[50,86,90,'warning']];
-      m.innerHTML='<div class="connector"></div>'+tools.map((t,i)=>{
-        const p=positions[i]||[50,50,80,'']; const locked=i>3?'locked':(p[3]||''); const det=conceptDetails[t];
-        return `<button class="concept-dot ${i===0?'concept-center':''} ${locked}" data-concept="${t}" style="left:${p[0]}%;top:${p[1]}%;width:${p[2]}px;height:${p[2]}px;transform:translate(-50%,-50%)">
-          <span class="block text-xs font-black ${i===0?'text-emerald-800':'text-slate-800'}">${t}</span><span class="block text-[10px] text-slate-500">${det?det.status:(i>3?'Locked':'New')}</span>
-        </button>`
-      }).join('');
-      m.querySelectorAll('[data-concept]').forEach(el=>el.onclick=()=>{activeConcept=conceptDetails[el.dataset.concept]||activeConcept;renderConcept();renderVault();renderPath();lucide.createIcons();});
-    }
-    function renderConcept(){
-      const d=activeConcept;
-      document.getElementById('conceptPanel').innerHTML=`
-        <div class="flex items-start justify-between gap-3"><div><p class="text-xs font-mono text-emerald-600 uppercase tracking-widest">Concepto seleccionado</p><h3 class="text-4xl font-black text-slate-900 mt-1">${Object.keys(conceptDetails).find(k=>conceptDetails[k]===d)||'OEE'}</h3><p class="text-sm text-slate-500">${d.full}</p></div><span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full whitespace-nowrap font-semibold">${d.status}</span></div>
-        <div class="mt-4 soft rounded-2xl p-4 bg-white"><div class="flex gap-4 items-center"><div class="h-20 w-20 rounded-full border-[10px] border-emerald-500 border-r-slate-200 grid place-items-center text-xl font-black text-slate-900">${d.score}%</div><p class="text-sm text-slate-600 leading-relaxed">${d.meaning}</p></div><div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-center font-mono text-sm text-slate-800">${d.formula}</div></div>
-        <div class="grid grid-cols-3 gap-2 mt-3 text-center"><div class="soft rounded-xl p-3"><p class="text-xs text-slate-500">Complejidad</p><p class="font-bold text-amber-600">${d.complexity}</p></div><div class="soft rounded-xl p-3"><p class="text-xs text-slate-500">Severidad</p><p class="font-bold text-rose-600">${d.severity}</p></div><div class="soft rounded-xl p-3"><p class="text-xs text-slate-500">Uso</p><p class="font-bold text-blue-600">${d.use}</p></div></div>
-        <div class="mt-3"><p class="text-xs uppercase tracking-widest text-slate-400 mb-2">Frases en bóveda</p><ul class="space-y-1 text-sm text-slate-600">${d.phrases.map(p=>`<li>• ${p}</li>`).join('')}</ul></div>`;
-      document.getElementById('scenarioTitle').textContent='Escenario: '+activeDept.scenario;
-      document.getElementById('aiPrompt').textContent='AI Manager: Can you explain '+d.full+' and its current impact?';
-      document.getElementById('userAnswer').textContent='You: The main impact is related to '+d.dept.toLowerCase()+', and we are validating the supporting data.';
-    }
-    function renderVault(){
-      const names=['OEE','MTTR','PFMEA','8D','FAI'];
-      document.getElementById('vaultCards').innerHTML=names.map(n=>{const d=conceptDetails[n];return `<article class="soft rounded-2xl p-4 bg-white"><div class="flex items-center justify-between mb-2"><h4 class="font-black text-slate-900">${n}</h4><span class="text-[10px] bg-emerald-100 text-emerald-700 rounded-full px-2 py-1 font-semibold">${d.status}</span></div><p class="text-xs text-slate-500">${d.full}</p><div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:${d.score}%"></div></div><p class="text-xs text-slate-400 mt-2">${d.dept} · ${d.score}% dominio</p></article>`}).join('');
-    }
-    function renderPath(){
-      const items=activeDept.tools.map((t,i)=>({name:t, state:i<2?'Dominado':i<4?'En progreso':'Bloqueado'}));
-      document.getElementById('learningPath').innerHTML=items.map((it,i)=>`<div class="flex items-center gap-3"><div class="h-10 w-10 rounded-full ${it.state==='Dominado'?'bg-emerald-100 border-emerald-300 text-emerald-700':it.state==='En progreso'?'bg-amber-50 border-amber-300 text-amber-700':'bg-slate-100 border-slate-300 text-slate-500'} border grid place-items-center"><i data-lucide="${it.state==='Bloqueado'?'lock':it.state==='Dominado'?'check':'circle'}" class="w-4 h-4"></i></div><div class="flex-1"><p class="font-bold text-slate-900 text-sm">${it.name}</p><p class="text-xs text-slate-500">${it.state}</p></div>${i<items.length-1?'<div class="w-10 h-px bg-slate-200"></div>':''}</div>`).join('');
-    }
-    function renderAll(){renderDepartments();renderBuckets();renderMap();renderConcept();renderVault();renderPath();lucide.createIcons();}
-    document.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active'));document.querySelectorAll(`[data-view="${btn.dataset.view}"]`).forEach(b=>b.classList.add('active'));}));
-    async function tryLandscapeLock(){try{if(screen.orientation&&screen.orientation.lock){await screen.orientation.lock('landscape')}}catch(e){}}
-    window.addEventListener('load',()=>{renderAll();tryLandscapeLock();});
+    const buckets=[['New Input',18,'blue','sun'],['Understanding',24,'cyan','book-open'],['Phrase Ready',31,'amber','message-square'],['Conversation Ready',38,'emerald','users'],['At Risk',12,'red','triangle-alert']];
+    let activeDept=departments[0], activeConcept=concept.OEE;
+    function el(id){return document.getElementById(id)} function tone(color){return tones[color]||tones.emerald} function keyOf(obj,val){return Object.keys(obj).find(k=>obj[k]===val)}
+    function renderDepartments(target){const root=el(target);root.innerHTML=departments.map(d=>{const t=tone(d.color);return `<button class="deptCard ${d.id===activeDept.id?'active':''}" data-dept="${d.id}" style="--tone:${t[0]};--toneBg:${t[1]};--p:${d.progress}%"><div class="row"><div class="deptIcon"><i data-lucide="${d.icon}"></i></div><span class="tag">${d.progress}%</span></div><h3>${d.name}</h3><div class="small">${d.concepts.length} conceptos · ${d.concepts.slice(0,3).join(', ')}</div><div class="progress"><div></div></div></button>`}).join('');root.querySelectorAll('[data-dept]').forEach(b=>b.onclick=()=>{activeDept=departments.find(d=>d.id===b.dataset.dept);activeConcept=concept[activeDept.concepts[0]]||activeConcept;renderAll();});}
+    function renderBuckets(target){el(target).innerHTML=buckets.map(b=>{const t=tone(b[2]);return `<div class="bucket" style="--b:${t[0]};--bBg:${t[1]};--bLine:${t[2]}"><span>${b[0]}</span><b>${b[1]}</b><i data-lucide="${b[3]}"></i></div>`}).join('')}
+    function renderConcept(target){const c=activeConcept,k=keyOf(concept,c)||'OEE';el(target).innerHTML=`<div class="row"><div><div class="eyebrow">Concepto Seleccionado</div><h2>${k}</h2><div class="small">${c.full}</div></div><span class="tag">${c.status}</span></div><div class="conceptSummary"><div class="ring" style="--score:${c.score}" data-score="${c.score}"></div><p>${c.meaning}</p></div><div class="formula">${c.formula}</div><div class="miniStats"><div class="mini"><span>Complejidad</span><b>${c.complexity}</b></div><div class="mini"><span>Severidad</span><b>${c.severity}</b></div><div class="mini"><span>Uso</span><b>${c.use}</b></div></div><div class="phraseList">${c.phrases.map(p=>`<div class="phrase">${p}</div>`).join('')}</div>`}
+    function renderVault(target,limit){const names=Object.keys(concept).filter(n=>!limit||['OEE','MTTR','PFMEA','8D','FAI','RCA'].includes(n)).slice(0,limit||99);el(target).innerHTML=names.map(n=>{const c=concept[n];return `<button class="vaultCard" data-concept="${n}"><div class="row"><h3>${n}</h3><span class="tag">${c.status}</span></div><div class="small" style="margin-top:8px">${c.full}</div><div class="progress"><div style="width:${c.score}%"></div></div><div class="small" style="margin-top:10px">${c.dept} · ${c.score}% dominio</div></button>`}).join('');el(target).querySelectorAll('[data-concept]').forEach(b=>b.onclick=()=>{activeConcept=concept[b.dataset.concept];showView('map');renderAll();});if(el('vaultCount'))el('vaultCount').textContent=Object.keys(concept).length+' conceptos';}
+    function renderPath(target){const items=activeDept.concepts.map((n,i)=>({n,state:i<2?'Dominado':i<4?'En progreso':'Bloqueado'}));el(target).innerHTML=items.map(x=>{let col=x.state==='Dominado'?'emerald':x.state==='En progreso'?'amber':'slate',t=tone(col);return `<div class="pathItem"><div class="pathIcon" style="--path:${t[0]};--pathBg:${t[1]};--pathLine:${t[2]}"><i data-lucide="${x.state==='Dominado'?'check':x.state==='En progreso'?'circle':'lock'}"></i></div><div><b>${x.n}</b><div class="small">${x.state}</div></div></div>`}).join('');if(el('activeRoleTag'))el('activeRoleTag').textContent=activeDept.name;}
+    function renderMap(){const wrap=el('mapWrap');const positions=[[50,50,'center'],[50,18,''],[22,34,''],[78,34,''],[24,76,''],[76,76,''],[50,88,'risk']];wrap.innerHTML='<div class="mapLine" style="left:50%;top:50%;width:28%;transform:rotate(-90deg)"></div><div class="mapLine" style="left:50%;top:50%;width:29%;transform:rotate(-155deg)"></div><div class="mapLine" style="left:50%;top:50%;width:29%;transform:rotate(-25deg)"></div><div class="mapLine" style="left:50%;top:50%;width:31%;transform:rotate(145deg)"></div><div class="mapLine" style="left:50%;top:50%;width:31%;transform:rotate(35deg)"></div>'+activeDept.concepts.map((n,i)=>{const p=positions[i]||[50,50,''];const c=concept[n];const cls=i===0?'mapCenter':`mapNode ${i>4?'locked':p[2]}`;return `<button class="${cls}" data-concept="${n}" style="left:${p[0]}%;top:${p[1]}%"><div><b>${n}</b><div style="font-size:11px;opacity:.72">${c?c.status:'Locked'}</div></div></button>`}).join('');wrap.querySelectorAll('[data-concept]').forEach(b=>b.onclick=()=>{if(concept[b.dataset.concept]){activeConcept=concept[b.dataset.concept];renderAll();}})}
+    function renderToolbar(){el('deptToolbar').innerHTML=departments.map(d=>`<button class="${d.id===activeDept.id?'active':''}" data-dept="${d.id}">${d.name}</button>`).join('');el('deptToolbar').querySelectorAll('[data-dept]').forEach(b=>b.onclick=()=>{activeDept=departments.find(d=>d.id===b.dataset.dept);activeConcept=concept[activeDept.concepts[0]]||activeConcept;renderAll();});}
+    function renderBucketConcepts(){el('bucketConcepts').innerHTML=Object.entries(concept).slice(0,10).map(([n,c])=>`<button class="pathItem" data-concept="${n}"><div class="pathIcon" style="--path:${tone(c.bucket==='At Risk'?'red':'emerald')[0]};--pathBg:${tone(c.bucket==='At Risk'?'red':'emerald')[1]};--pathLine:${tone(c.bucket==='At Risk'?'red':'emerald')[2]}"><i data-lucide="box"></i></div><div><b>${n}</b><div class="small">${c.bucket} · ${c.dept}</div></div></button>`).join('');el('bucketConcepts').querySelectorAll('[data-concept]').forEach(b=>b.onclick=()=>{activeConcept=concept[b.dataset.concept];showView('map');renderAll();});}
+    function renderAI(){const c=activeConcept,k=keyOf(concept,c);el('scenarioText').textContent='Escenario: '+activeDept.scenario+' · Concepto: '+k;el('aiPrompt').textContent='AI Manager: '+(c.questions[0]||'Can you explain the current issue?');el('aiAnswer').textContent='You: '+c.phrases[0];el('questions').innerHTML=c.questions.map(q=>`<div class="phrase">${q}</div>`).join('')}
+    function renderShadow(){const c=activeConcept;el('shadowPhrases').innerHTML=c.phrases.map((p,i)=>`<div class="phrase"><b>${String(i+1).padStart(2,'0')}</b> · ${p}</div>`).join('')}
+    function renderMetrics(){el('metricsList').innerHTML=['Active Vocabulary — 842','Fluency Score — 78%','Chunk Usage — 65%','Response Latency — 1.8s','Confidence Score — 80%'].map(x=>`<div class="phrase">${x}</div>`).join('')}
+    function renderAll(){renderDepartments('deptGridDash');renderBuckets('bucketGridDash');renderBuckets('bucketGridFull');renderConcept('conceptPanelDash');renderConcept('conceptPanelMap');renderVault('vaultPreview',6);renderVault('vaultFull');renderPath('pathDash');renderMap();renderToolbar();renderBucketConcepts();renderAI();renderShadow();renderMetrics();lucide.createIcons();}
+    function showView(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));el('view-'+v)?.classList.add('active');document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelector('.content').scrollTop=0}
+    document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));document.addEventListener('click',e=>{const j=e.target.closest('[data-jump]');if(j)showView(j.dataset.jump)});el('searchInput').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();if(concept[Object.keys(concept).find(k=>k.toLowerCase()===q)]){activeConcept=concept[Object.keys(concept).find(k=>k.toLowerCase()===q)];renderAll();}});
+    async function lockLandscape(){try{if(screen.orientation?.lock)await screen.orientation.lock('landscape')}catch(e){}} window.addEventListener('load',()=>{renderAll();lockLandscape();});
   </script>
 </body>
 </html>
