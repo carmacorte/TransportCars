@@ -29,9 +29,63 @@
     .rail:before{content:"";position:absolute;left:24px;right:24px;top:50%;height:2px;background:linear-gradient(90deg,#34d399,#fbbf24,#fb7185,#a78bfa,#34d399);opacity:.65}
     .bucket{min-height:150px}.pulse{animation:pulse 2s ease-in-out infinite}@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
     .scroll{scrollbar-color:#22314a transparent;scrollbar-width:thin}.scroll::-webkit-scrollbar{width:6px}.scroll::-webkit-scrollbar-thumb{background:#22314a;border-radius:6px}
+    /* Landscape-first mobile behavior */
+    .orientation-gate{display:none;}
+    @media screen and (orientation: portrait) and (max-width: 1024px){
+      body{overflow:hidden;background:linear-gradient(180deg,#f8fafc 0%,#eef3f1 55%,#f6f1e8 100%);color:#0f172a;}
+      body > aside, body > main{display:none !important;}
+      .orientation-gate{
+        display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:28px;
+        background:
+          radial-gradient(circle at 18% 8%,rgba(16,185,129,.16),transparent 30%),
+          radial-gradient(circle at 88% 78%,rgba(37,99,235,.14),transparent 32%),
+          linear-gradient(180deg,#fbfdff 0%,#eef4f2 60%,#f7f2e8 100%);
+      }
+      .orientation-card{
+        width:min(92vw,520px);border-radius:34px;padding:30px 26px;text-align:left;
+        background:rgba(255,255,255,.72);backdrop-filter:blur(22px);
+        border:1px solid rgba(15,23,42,.10);
+        box-shadow:0 28px 90px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.7);
+      }
+      .orientation-logo{
+        width:72px;height:72px;border-radius:24px;display:grid;place-items:center;margin-bottom:24px;
+        background:linear-gradient(135deg,#0f5132,#16a34a,#2563eb);
+        box-shadow:0 18px 40px rgba(22,163,74,.22);
+      }
+      .orientation-pill{
+        display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;margin-bottom:18px;
+        color:#047857;background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.18);
+        font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+      }
+      .orientation-title{font-size:44px;line-height:.96;font-weight:900;letter-spacing:-.06em;color:#07140f;margin:0 0 16px;}
+      .orientation-title span{display:block;background:linear-gradient(135deg,#059669,#0f766e,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent;}
+      .orientation-text{font-size:16px;line-height:1.55;color:#475569;margin:0 0 24px;}
+      .orientation-steps{display:grid;gap:12px;margin-top:22px;}
+      .orientation-step{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.66);border:1px solid rgba(15,23,42,.08);font-weight:800;color:#182437;}
+      .rotate-icon{animation:rotateHint 1.8s ease-in-out infinite;}
+      @keyframes rotateHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+    }
   </style>
 </head>
 <body class="min-h-screen overflow-hidden">
+  <div class="orientation-gate" aria-label="Landscape mode required">
+    <div class="orientation-card">
+      <div class="orientation-logo">
+        <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+      </div>
+      <div class="orientation-pill">
+        <i data-lucide="smartphone" class="w-4 h-4 rotate-icon"></i>
+        Landscape Required
+      </div>
+      <h1 class="orientation-title">SMTinel Vault <span>Command Center</span></h1>
+      <p class="orientation-text">El mapa de conocimiento, cubetas, bóveda y práctica IA están diseñados para operar en vista horizontal.</p>
+      <div class="orientation-steps">
+        <div class="orientation-step"><i data-lucide="rotate-cw" class="w-5 h-5 text-emerald-600"></i> Gira tu dispositivo a landscape.</div>
+        <div class="orientation-step"><i data-lucide="layout-dashboard" class="w-5 h-5 text-blue-600"></i> Entra al Operational View.</div>
+      </div>
+    </div>
+  </div>
+
   <aside class="fixed left-0 top-0 bottom-0 w-72 glass border-r border-slate-800 p-5 flex flex-col">
     <div class="flex items-center gap-3 mb-8">
       <div class="h-12 w-12 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shadow-lg shadow-emerald-500/10">
@@ -192,6 +246,18 @@
       </div>
     </section>
   </main>
-  <script>lucide.createIcons();</script>
+  <script>
+    lucide.createIcons();
+    async function tryLandscapeLock(){
+      try{
+        if(screen.orientation && screen.orientation.lock){
+          await screen.orientation.lock('landscape');
+        }
+      }catch(e){
+        // Browsers usually require installed PWA/fullscreen for orientation lock. CSS gate still handles portrait.
+      }
+    }
+    window.addEventListener('load', tryLandscapeLock);
+  </script>
 </body>
 </html>
