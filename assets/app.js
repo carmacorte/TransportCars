@@ -65,7 +65,11 @@ function renderVoiceBar(){return `<div class="voice-bar"><div class="voice-contr
 // ===== SCROLL MANAGEMENT =====
 function scrollToContent(){
   const main = document.querySelector('.main');
-  if(main){
+  if(!main) return;
+  const target = main.querySelector('.concept-panel') || main.querySelector('.section.active') || main.querySelector('.panel');
+  if(target){
+    main.scrollTo({top: target.offsetTop - 10, behavior:'smooth'});
+  } else {
     main.scrollTo({top:0,behavior:'smooth'});
   }
 }
