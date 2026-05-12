@@ -50,9 +50,9 @@ function getProgress(name){return saved[name]?.progress ?? concepts[name]?.progr
 function getBucket(name){return saved[name]?.bucket ?? concepts[name]?.bucket ?? 'New Input'}
 function saveConcept(name,patch){saved[name]={...(saved[name]||{}),...patch};localStorage.setItem('smtinel-progress',JSON.stringify(saved))}
 function colorClass(c){return c==='blue'?'blue':c==='amber'?'amber':c==='red'?'red':c==='purple'?'purple':''}
-function nav(view){state.view=view;render()}
-function selectRole(id){state.role=id;const r=roles.find(x=>x.id===id);if(r&&r.concepts[0]) state.concept=r.concepts[0];render()}
-function selectConcept(name){state.concept=name;state.tab='summary';render()}
+function nav(view){state.view=view;render();scrollToContent()}
+function selectRole(id){state.role=id;const r=roles.find(x=>x.id===id);if(r&&r.concepts[0]) state.concept=r.concepts[0];render();scrollToContent()}
+function selectConcept(name){state.concept=name;state.tab='summary';render();scrollToContent()}
 function filteredConceptNames(){const q=state.query.toLowerCase();let names=Object.keys(concepts);if(state.role!=='all'){const r=roles.find(x=>x.id===state.role);if(r) names=r.concepts.filter(n=>concepts[n])}if(q) names=names.filter(n=>n.toLowerCase().includes(q)||concepts[n].abbr.toLowerCase().includes(q)||concepts[n].meaning.toLowerCase().includes(q));return names}
 function advanceConcept(name){const p=Math.min(100,getProgress(name)+12);let bucket=getBucket(name);if(p>=85) bucket='Operationally Ready';else if(p>=68) bucket='Conversation Ready';else if(p>=50) bucket='Phrase Ready';else if(p>=32) bucket='Understanding';saveConcept(name,{progress:p,bucket,lastPractice:new Date().toLocaleDateString('es-MX')});state.feedback=`${name} avanzó a ${bucket} con ${p}% de readiness.`;render()}
 function speak(text){if(window.VoiceModule){VoiceModule.speak(text)}else if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.9;u.pitch=1;speechSynthesis.speak(u)}}
@@ -61,6 +61,14 @@ function bucketCounts(){const counts=Object.fromEntries(bucketOrder.map(b=>[b,0]
 function iconFor(view){return {dashboard:'▦',map:'⌘',vault:'▤',buckets:'▱',practice:'🤖',shadowing:'≋',analytics:'▥'}[view]||'•'}
 
 function renderVoiceBar(){return `<div class="voice-bar"><div class="voice-controls"><button class="voice-btn play" onclick="const t=document.querySelector('.concept-panel h2')?.textContent||'SMTinel Vault Operational English';window.VoiceModule&&window.VoiceModule.speak(t)" title="Listen">▶</button><button class="voice-btn stop" onclick="window.VoiceModule&&window.VoiceModule.stop()" title="Stop">■</button><div id="voice-indicator" class="voice-indicator">${window.VoiceModule&&window.VoiceModule.voicesLoaded?(window.VoiceModule.getAvailableVoices().length>0?'Ready':'No voices'):'Loading...'}</div><select class="voice-select" id="voiceSelect" onchange="window.VoiceModule&&window.VoiceModule.setVoiceByName(this.value)">${window.VoiceModule&&window.VoiceModule.voicesLoaded?(window.VoiceModule.getAvailableVoices().length>0?window.VoiceModule.getAvailableVoices().map(v=>'<option value="'+v.name+'" '+(v.name===(window.VoiceModule.getCurrentSettings().voiceName)?'selected':'')+'>'+v.name+'</option>').join(''):'<option>No voices found</option>'):'<option>Loading...</option>'}</select></div><div class="voice-sliders"><label>Speed<input type="range" min="0.85" max="1" step="0.05" value="${window.VoiceModule?window.VoiceModule.getCurrentSettings().rate:0.9}" onchange="window.VoiceModule&&window.VoiceModule.setRate(this.value)"></label><label>Pitch<input type="range" min="0.8" max="1.2" step="0.1" value="${window.VoiceModule?window.VoiceModule.getCurrentSettings().pitch:1}" onchange="window.VoiceModule&&window.VoiceModule.setPitch(this.value)"></label></div></div>`}
+
+// ===== SCROLL MANAGEMENT =====
+function scrollToContent(){
+  const main = document.querySelector('.main');
+  if(main){
+    main.scrollTo({top:0,behavior:'smooth'});
+  }
+}
 function renderNav(){const items=[['dashboard','Dashboard'],['map','Mapa'],['vault','Bóveda'],['buckets','Cubetas'],['practice','IA Practice'],['shadowing','Shadowing'],['analytics','Analytics']];return `
   <aside class="rail"><div class="brand-pill">🛡️</div>${items.map(([id,label])=>`<button class="nav-icon ${state.view===id?'active':''}" data-label="${label}" onclick="nav('${id}')"><span>${iconFor(id)}</span></button>`).join('')}<div class="rail-bottom"><button class="nav-icon" data-label="Ajustes"><span>⚙</span></button></div></aside>
   <nav class="bottom-dock">${items.map(([id,label])=>`<button class="dock-btn ${state.view===id?'active':''}" onclick="nav('${id}')"><span>${iconFor(id)}</span><b>${label}</b></button>`).join('')}</nav>`}
