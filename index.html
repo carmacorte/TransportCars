@@ -330,6 +330,31 @@
       .concept-panel h2{font-size:26px}
     }
   </style>
+  <!-- Kokoro TTS via Transformers.js -->
+  <script type="module">
+    import { KokoroTTS } from 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.0/dist/kokoro.web.js';
+
+    window.kokoroTTS = null;
+    window.kokoroReady = false;
+    window.kokoroVoice = 'af'; // American Female (af), American Male (am), British Female (bf), British Male (bm)
+
+    async function initKokoro() {
+      try {
+        window.kokoroTTS = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-ONNX', {
+          dtype: 'q8',
+          device: 'wasm'
+        });
+        window.kokoroReady = true;
+        console.log('Kokoro TTS ready');
+        document.dispatchEvent(new CustomEvent('kokoro-ready'));
+      } catch(e) {
+        console.warn('Kokoro failed, falling back to speechSynthesis:', e);
+        window.kokoroReady = false;
+      }
+    }
+
+    initKokoro();
+  </script>
 </head>
 <body>
   <div id="app" class="phone"></div>
@@ -391,7 +416,24 @@
     function getBucket(name){return saved[name]?.bucket ?? concepts[name]?.bucket ?? 'New Input'}
     function saveConcept(name,patch){saved[name]={...(saved[name]||{}),...patch};localStorage.setItem('smtinel-progress',JSON.stringify(saved))}
     function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-    function speak(text){if(!('speechSynthesis'in window))return; speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.88;u.pitch=1;speechSynthesis.speak(u)}
+    async function speak(text){
+      // Try Kokoro first
+      if(window.kokoroReady && window.kokoroTTS) {
+        try {
+          const audio = await window.kokoroTTS.generate(text, { voice: window.kokoroVoice });
+          audio.play();
+          return;
+        } catch(e) {
+          console.warn('Kokoro generation failed, falling back:', e);
+        }
+      }
+      // Fallback to browser TTS
+      if('speechSynthesis'in window) {
+        speechSynthesis.cancel();
+        const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=.88; u.pitch=1;
+        speechSynthesis.speak(u);
+      }
+    }
     function go(view){state.view=view;updateNav();render()}
     function selectRole(id){state.role=id;const r=roles.find(x=>x.id===id);if(r&&r.concepts[0]){state.concept=r.concepts[0]}go('map')}
     function selectConcept(name){state.concept=name;state.tab='summary';go('vault')}
@@ -409,11 +451,20 @@
           <div class="bot">🛡️</div>
           <div class="logo">SMTinel <span>Vault</span></div>
         </div>
-        <div class="search">
-          <b>⌕</b>
-          <input type="text" placeholder="Buscar concepto..." value="${state.query}" 
-            oninput="state.query=this.value;render()" 
-            onfocus="if(state.view!=='map'&&state.view!=='vault')go('vault')"/>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
+          <div id="tts-status" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
+          <select id="voiceSelect" onchange="window.kokoroVoice=this.value" style="height:32px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 8px;font-size:12px;color:var(--ink);outline:none;cursor:pointer">
+            <option value="af">🇺🇸 AF</option>
+            <option value="am">🇺🇸 AM</option>
+            <option value="bf">🇬🇧 BF</option>
+            <option value="bm">🇬🇧 BM</option>
+          </select>
+          <div class="search">
+            <b>⌕</b>
+            <input type="text" placeholder="Buscar concepto..." value="${state.query}" 
+              oninput="state.query=this.value;render()" 
+              onfocus="if(state.view!=='map'&&state.view!=='vault')go('vault')"/>
+          </div>
         </div>
       </header>`}
 
@@ -621,6 +672,19 @@
       app.innerHTML=html;
       state.feedback='';
     }
+
+    // ===== TTS STATUS =====
+    document.addEventListener('kokoro-ready', () => {
+      const el = document.getElementById('tts-status');
+      if(el) el.textContent = '🟢 Neural TTS';
+    });
+    // Fallback status check
+    setTimeout(() => {
+      const el = document.getElementById('tts-status');
+      if(el && !window.kokoroReady) {
+        el.textContent = '🟡 Browser TTS';
+      }
+    }, 3000);
 
     // ===== INIT =====
     updateNav();
