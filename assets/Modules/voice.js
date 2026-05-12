@@ -25,7 +25,6 @@ const VoiceModule = (function() {
     'Microsoft Emma Online (Natural)',
     'Microsoft Brian Online (Natural)',
     'Microsoft Christopher Online (Natural)',
-    'Microsoft Michelle Online (Natural)',
     'Microsoft Steffan Online (Natural)',
     'Microsoft Roger Online (Natural)',
     'Microsoft Ana Online (Natural)',
@@ -53,6 +52,8 @@ const VoiceModule = (function() {
   let isSpeaking = false;
   let isPaused = false;
   let currentUtterances = [];
+  let voicesLoaded = false;
+  let onVoicesReadyCallback = null;
   let settings = {
     rate: 0.9,
     pitch: 1.0,
@@ -61,26 +62,42 @@ const VoiceModule = (function() {
   };
 
   // ===== INITIALIZATION =====
-  function init() {
+  function init(callback) {
     loadSettings();
-    loadVoices();
+    onVoicesReadyCallback = callback || null;
 
-    // iOS Safari: voices may need user interaction first
-    // Chrome: voices load async via voiceschanged
-    if ('speechSynthesis' in window) {
-      if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = () => {
-          voices = speechSynthesis.getVoices();
-          selectPreferredVoice();
-        };
-      }
-      // Immediate attempt (works on Firefox/Safari Desktop)
-      setTimeout(() => {
-        if (voices.length === 0) {
-          voices = speechSynthesis.getVoices();
-          selectPreferredVoice();
-        }
-      }, 100);
+    if (!('speechSynthesis' in window)) {
+      console.warn('Speech synthesis not supported');
+      voicesLoaded = true;
+      return;
+    }
+
+    // iOS Safari / Chrome: voices load async via voiceschanged
+    // Firefox: voices may be available immediately
+    speechSynthesis.onvoiceschanged = () => {
+      voices = speechSynthesis.getVoices();
+      selectPreferredVoice();
+      voicesLoaded = true;
+      if (onVoicesReadyCallback) onVoicesReadyCallback();
+    };
+
+    // Immediate attempt (Firefox / already loaded)
+    const immediateVoices = speechSynthesis.getVoices();
+    if (immediateVoices && immediateVoices.length > 0) {
+      voices = immediateVoices;
+      selectPreferredVoice();
+      voicesLoaded = true;
+      if (onVoicesReadyCallback) onVoicesReadyCallback();
+    }
+  }
+
+  // Force reload voices (useful for re-triggering)
+  function forceLoadVoices() {
+    if (!('speechSynthesis' in window)) return;
+    voices = speechSynthesis.getVoices() || [];
+    if (voices.length > 0) {
+      selectPreferredVoice();
+      voicesLoaded = true;
     }
   }
 
@@ -186,7 +203,7 @@ const VoiceModule = (function() {
 
       // Apply settings
       utterance.rate = Math.max(0.5, Math.min(2, settings.rate));
-      utterance.pitch = Math.max(0, Math.max(2, settings.pitch));
+      utterance.pitch = Math.max(0, Math.min(2, settings.pitch));
       utterance.volume = Math.max(0, Math.min(1, settings.volume));
       utterance.lang = 'en-US';
 
@@ -278,7 +295,10 @@ const VoiceModule = (function() {
   }
 
   function getAvailableVoices() {
-    return voices.filter(v => v.lang && v.lang.startsWith('en')).map(v => ({
+    // If no English voices, return ALL voices as fallback
+    const english = voices.filter(v => v.lang && v.lang.startsWith('en'));
+    const target = english.length > 0 ? english : voices;
+    return target.map(v => ({
       name: v.name,
       lang: v.lang,
       local: v.localService,
@@ -328,6 +348,7 @@ const VoiceModule = (function() {
     pause: pauseSpeech,
     resume: resumeSpeech,
     loadVoices,
+    forceLoadVoices,
     setRate,
     setPitch,
     setVolume,
@@ -335,14 +356,10 @@ const VoiceModule = (function() {
     getAvailableVoices,
     getCurrentSettings,
     get isSpeaking() { return isSpeaking; },
-    get isPaused() { return isPaused; }
+    get isPaused() { return isPaused; },
+    get voicesLoaded() { return voicesLoaded; }
   };
 })();
-
-// Auto-init on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  VoiceModule.init();
-});
 
 // Expose globally for onclick handlers
 window.VoiceModule = VoiceModule;
