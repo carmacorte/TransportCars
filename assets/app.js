@@ -60,7 +60,7 @@ function evaluateText(){const c=currentConcept();const text=document.getElementB
 function bucketCounts(){const counts=Object.fromEntries(bucketOrder.map(b=>[b,0]));Object.keys(concepts).forEach(n=>{counts[getBucket(n)] = (counts[getBucket(n)]||0)+1});return counts}
 function iconFor(view){return {dashboard:'▦',map:'⌘',vault:'▤',buckets:'▱',practice:'🤖',shadowing:'≋',analytics:'▥'}[view]||'•'}
 
-function renderVoiceBar(){return `<div class="voice-bar"><div class="voice-controls"><button class="voice-btn play" onclick="const t=document.querySelector('.concept-panel h2')?.textContent||'SMTinel Vault Operational English';window.VoiceModule&&window.VoiceModule.speak(t)" title="Listen">▶</button><button class="voice-btn stop" onclick="window.VoiceModule&&window.VoiceModule.stop()" title="Stop">■</button><div id="voice-indicator" class="voice-indicator">${window.VoiceModule&&window.VoiceModule.voicesLoaded?'Ready':'Loading voices...'}</div><select class="voice-select" id="voiceSelect" onchange="window.VoiceModule&&window.VoiceModule.setVoiceByName(this.value)">${window.VoiceModule&&window.VoiceModule.voicesLoaded?(window.VoiceModule.getAvailableVoices().length>0?window.VoiceModule.getAvailableVoices().map(v=>'<option value="'+v.name+'" '+(v.name===(window.VoiceModule.getCurrentSettings().voiceName)?'selected':'')+'>'+v.name+'</option>').join(''):'<option>No voices found</option>'):'<option>Loading voices...</option>'}</select><button class="voice-btn" style="width:32px;height:32px;border-radius:10px;font-size:14px" onclick="window.VoiceModule&&window.VoiceModule.forceLoadVoices();render();" title="Refresh voices">↻</button></div><div class="voice-sliders"><label>Speed<input type="range" min="0.85" max="1" step="0.05" value="${window.VoiceModule?window.VoiceModule.getCurrentSettings().rate:0.9}" onchange="window.VoiceModule&&window.VoiceModule.setRate(this.value)"></label><label>Pitch<input type="range" min="0.8" max="1.2" step="0.1" value="${window.VoiceModule?window.VoiceModule.getCurrentSettings().pitch:1}" onchange="window.VoiceModule&&window.VoiceModule.setPitch(this.value)"></label></div></div>`}
+function renderVoiceBar(){return `<div class="voice-bar"><div class="voice-controls"><button class="voice-btn play" onclick="const t=document.querySelector('.concept-panel h2')?.textContent||'SMTinel Vault Operational English';window.VoiceModule&&window.VoiceModule.speak(t)" title="Listen">▶</button><button class="voice-btn stop" onclick="window.VoiceModule&&window.VoiceModule.stop()" title="Stop">■</button><div id="voice-indicator" class="voice-indicator">${window.VoiceModule&&window.VoiceModule.voicesLoaded?(window.VoiceModule.getAvailableVoices().length>0?'Ready':'No voices'):'Loading...'}</div><select class="voice-select" id="voiceSelect" onchange="window.VoiceModule&&window.VoiceModule.setVoiceByName(this.value)">${window.VoiceModule&&window.VoiceModule.voicesLoaded?(window.VoiceModule.getAvailableVoices().length>0?window.VoiceModule.getAvailableVoices().map(v=>'<option value="'+v.name+'" '+(v.name===(window.VoiceModule.getCurrentSettings().voiceName)?'selected':'')+'>'+v.name+'</option>').join(''):'<option>No voices found</option>'):'<option>Loading...</option>'}</select></div><div class="voice-sliders"><label>Speed<input type="range" min="0.85" max="1" step="0.05" value="${window.VoiceModule?window.VoiceModule.getCurrentSettings().rate:0.9}" onchange="window.VoiceModule&&window.VoiceModule.setRate(this.value)"></label><label>Pitch<input type="range" min="0.8" max="1.2" step="0.1" value="${window.VoiceModule?window.VoiceModule.getCurrentSettings().pitch:1}" onchange="window.VoiceModule&&window.VoiceModule.setPitch(this.value)"></label></div></div>`}
 function renderNav(){const items=[['dashboard','Dashboard'],['map','Mapa'],['vault','Bóveda'],['buckets','Cubetas'],['practice','IA Practice'],['shadowing','Shadowing'],['analytics','Analytics']];return `
   <aside class="rail"><div class="brand-pill">🛡️</div>${items.map(([id,label])=>`<button class="nav-icon ${state.view===id?'active':''}" data-label="${label}" onclick="nav('${id}')"><span>${iconFor(id)}</span></button>`).join('')}<div class="rail-bottom"><button class="nav-icon" data-label="Ajustes"><span>⚙</span></button></div></aside>
   <nav class="bottom-dock">${items.map(([id,label])=>`<button class="dock-btn ${state.view===id?'active':''}" onclick="nav('${id}')"><span>${iconFor(id)}</span><b>${label}</b></button>`).join('')}</nav>`}
@@ -97,15 +97,8 @@ render();
 // Init voice module with re-render callback
 if(window.VoiceModule){
   window.VoiceModule.init(function(){
-    // Voices are ready - re-render to populate dropdown
+    console.log('Voice module ready - re-rendering');
     render();
   });
-  // Backup: try again after 1s if voices still not loaded
-  setTimeout(function(){
-    if(!window.VoiceModule.voicesLoaded){
-      window.VoiceModule.forceLoadVoices();
-      render();
-    }
-  }, 1000);
 }
 
