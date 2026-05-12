@@ -6,9 +6,185 @@
   <meta name="theme-color" content="#f7faf9" />
   <title>SMTinel Vault — Manufacturing English Intelligence</title>
   <link rel="stylesheet" href="./assets/styles.css" />
+
+  <!-- Ajuste solicitado: vista vertical + textos reducidos -->
+  <style>
+    :root {
+      --mobile-scale: 0.82;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-width: 0;
+      min-height: 100%;
+      margin: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      touch-action: pan-y;
+    }
+
+    body,
+    #app {
+      transform: none !important;
+      rotate: 0deg !important;
+      writing-mode: horizontal-tb !important;
+      orientation: portrait !important;
+    }
+
+    #app {
+      width: 100%;
+      min-height: 100dvh;
+      max-width: 100vw;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      box-sizing: border-box;
+    }
+
+    /* Oculta el banner/botón de rotación forzada si existe en la app */
+    [class*="landscape"],
+    [class*="Landscape"],
+    [id*="landscape"],
+    [id*="Landscape"],
+    [aria-label*="Landscape"],
+    [aria-label*="landscape"] {
+      display: none !important;
+    }
+
+    /* Normaliza layouts que estaban pensados para horizontal */
+    main,
+    section,
+    header,
+    nav,
+    .container,
+    .page,
+    .screen,
+    .dashboard,
+    .hero,
+    .content,
+    .panel,
+    .cards,
+    .grid {
+      max-width: 100vw !important;
+      box-sizing: border-box !important;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        font-size: 13px;
+      }
+
+      h1,
+      .h1,
+      .title,
+      .hero-title,
+      [class*="title"],
+      [class*="Title"] {
+        font-size: clamp(2.05rem, 10.5vw, 3.45rem) !important;
+        line-height: 0.92 !important;
+        letter-spacing: -0.055em !important;
+      }
+
+      h2,
+      .h2,
+      .subtitle,
+      [class*="subtitle"],
+      [class*="Subtitle"] {
+        font-size: clamp(1.05rem, 5.2vw, 1.85rem) !important;
+        line-height: 1.05 !important;
+      }
+
+      h3,
+      .h3,
+      .card-title,
+      [class*="cardTitle"],
+      [class*="CardTitle"] {
+        font-size: clamp(0.95rem, 4.6vw, 1.35rem) !important;
+        line-height: 1.08 !important;
+      }
+
+      p,
+      li,
+      label,
+      input,
+      button,
+      textarea,
+      select,
+      .text,
+      .copy,
+      .description,
+      [class*="description"],
+      [class*="Description"] {
+        font-size: clamp(0.78rem, 3.6vw, 0.98rem) !important;
+        line-height: 1.28 !important;
+      }
+
+      .stat,
+      .metric,
+      .number,
+      [class*="stat"],
+      [class*="Stat"],
+      [class*="metric"],
+      [class*="Metric"],
+      [class*="number"],
+      [class*="Number"] {
+        font-size: clamp(1.9rem, 10vw, 3.1rem) !important;
+        line-height: 0.95 !important;
+      }
+
+      .card,
+      [class*="card"],
+      [class*="Card"] {
+        min-width: 0 !important;
+      }
+
+      img,
+      svg,
+      canvas,
+      video {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+
+    @media (orientation: portrait) {
+      body,
+      #app {
+        width: 100vw !important;
+        min-height: 100dvh !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
   <script src="./assets/app.js"></script>
+
+  <!-- Fallback: elimina nodos de aviso de landscape creados dinámicamente -->
+  <script>
+    (function () {
+      const removeLandscapeUI = () => {
+        const nodes = document.querySelectorAll('[class*="landscape"], [class*="Landscape"], [id*="landscape"], [id*="Landscape"], [aria-label*="Landscape"], [aria-label*="landscape"]');
+        nodes.forEach((node) => {
+          node.style.setProperty('display', 'none', 'important');
+          node.style.setProperty('visibility', 'hidden', 'important');
+        });
+
+        document.documentElement.style.setProperty('transform', 'none', 'important');
+        document.body.style.setProperty('transform', 'none', 'important');
+        const app = document.getElementById('app');
+        if (app) app.style.setProperty('transform', 'none', 'important');
+      };
+
+      removeLandscapeUI();
+      window.addEventListener('load', removeLandscapeUI, { once: true });
+      window.addEventListener('resize', removeLandscapeUI);
+
+      const observer = new MutationObserver(removeLandscapeUI);
+      observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+    })();
+  </script>
 </body>
 </html>
