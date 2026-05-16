@@ -1,3 +1,3 @@
-# SMTinel Vault
+# Lean English
 
 Manufacturing English Intelligence
